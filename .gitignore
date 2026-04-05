@@ -1,0 +1,29 @@
+# Attack results (contain live AWS account details)
+results/
+
+# SSH keys
+*.pem
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfvars
+!terraform/terraform.tfvars.example
+terraform/.terraform.lock.hcl
+terraform/*.tfplan
+terraform/crash.log
+
+# OS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Docs (only track docs/diagram/.keep)
+docs/*
+!docs/diagram/
+!docs/plans/.keep
+tasks/*

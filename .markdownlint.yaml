@@ -1,0 +1,19 @@
+default: true
+
+# Line length - disabled for tables and long URLs
+MD013: false
+
+# Allow inline HTML (Markdown diagrams, badges)
+MD033: false
+
+# Allow multiple headings with same content (e.g. repeated "Config A" across files)
+MD024: false
+
+# Allow trailing punctuation in headings (Japanese text)
+MD026: false
+
+# Allow emphasis used as heading (e.g. "--- 往路 ---" dividers)
+MD036: false
+
+# Fenced code blocks without language (ASCII diagrams, trace output)
+MD040: false
