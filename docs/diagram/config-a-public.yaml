@@ -1,0 +1,137 @@
+Diagram:
+  DefinitionFiles:
+    - Type: URL
+      Url: "https://raw.githubusercontent.com/awslabs/diagram-as-code/main/definitions/definition-for-aws-icons-light.yaml"
+
+  Resources:
+    Canvas:
+      Type: AWS::Diagram::Canvas
+      Direction: vertical
+      Children:
+        - ExternalUsers
+        - AWSCloud
+
+    ExternalUsers:
+      Type: AWS::Diagram::HorizontalStack
+      Children:
+        - User
+        - Attacker
+
+    User:
+      Type: AWS::Diagram::Resource
+      Preset: User
+      Title: "User"
+
+    Attacker:
+      Type: AWS::Diagram::Resource
+      Preset: User
+      Title: "Attacker"
+
+    AWSCloud:
+      Type: AWS::Diagram::Cloud
+      Direction: vertical
+      Preset: AWSCloudNoLogo
+      Align: center
+      Children:
+        - Region
+
+    Region:
+      Type: AWS::Region
+      Title: "ap-northeast-1"
+      Direction: vertical
+      Children:
+        - VPC
+        - ServicesStack
+
+    ServicesStack:
+      Type: AWS::Diagram::HorizontalStack
+      Children:
+        - CloudWatch
+        - GuardDuty
+
+    VPC:
+      Type: AWS::EC2::VPC
+      Title: "Config A: Public Direct (10.0.0.0/16)"
+      Direction: vertical
+      Children:
+        - AZ1
+      BorderChildren:
+        - Position: N
+          Resource: IGW
+
+    AZ1:
+      Type: AWS::EC2::AvailabilityZone
+      Title: "AZ-a"
+      Direction: vertical
+      Children:
+        - PublicSubnet1
+        - DBSubnet1
+
+    PublicSubnet1:
+      Type: AWS::EC2::Subnet
+      Preset: PublicSubnet
+      Title: "Public Subnet (10.0.1.0/24)"
+      Children:
+        - AppServer
+
+    AppServer:
+      Type: AWS::EC2::Instance
+      Title: "App Server (Public IP)"
+
+    DBSubnet1:
+      Type: AWS::EC2::Subnet
+      Preset: PrivateSubnet
+      Title: "DB Private (10.0.20.0/24)"
+      Children:
+        - RDS
+
+    RDS:
+      Type: AWS::Diagram::Resource
+      Preset: "Amazon Relational Database Service (Amazon RDS)"
+      Title: "RDS"
+
+    IGW:
+      Type: AWS::EC2::InternetGateway
+      Title: "Internet Gateway"
+      IconFill:
+        Type: rect
+
+    CloudWatch:
+      Type: AWS::Diagram::Resource
+      Preset: "Amazon CloudWatch"
+      Title: "Flow Logs"
+
+    GuardDuty:
+      Type: AWS::Diagram::Resource
+      Preset: "Amazon GuardDuty"
+      Title: "GuardDuty"
+
+  Links:
+    - Source: User
+      SourcePosition: S
+      Target: IGW
+      TargetPosition: NNW
+      TargetArrowHead:
+        Type: Open
+
+    - Source: Attacker
+      SourcePosition: S
+      Target: IGW
+      TargetPosition: NNE
+      TargetArrowHead:
+        Type: Open
+      LineColor: "rgba(255,0,0,255)"
+
+    - Source: IGW
+      SourcePosition: S
+      Target: AppServer
+      TargetPosition: N
+      TargetArrowHead:
+        Type: Open
+
+    - Source: AppServer
+      SourcePosition: S
+      Target: RDS
+      TargetPosition: N
+      TargetArrowHead:
+        Type: Open
