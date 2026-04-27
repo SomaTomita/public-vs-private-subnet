@@ -103,8 +103,8 @@ output "attack_target" {
 output "estimated_hourly_cost" {
   description = "Rough hourly cost estimate for current config"
   value = local.is_public ? (
-    "~$0.03/hr (EC2 + RDS only)"
+    "~$0.03-0.05/hr (EC2 + RDS only, varies by region)"
     ) : (
-    "~$0.10/hr (EC2 + RDS + NAT GW + ALB)"
+    "~$0.13-0.17/hr (EC2 + RDS + NAT GW + ALB, varies by region)"
   )
 }
