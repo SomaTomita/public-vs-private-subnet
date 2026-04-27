@@ -62,7 +62,7 @@ resource "aws_vpc_security_group_ingress_rule" "app_ssh_from_bastion" {
   from_port         = 22
   to_port           = 22
   ip_protocol       = "tcp"
-  description       = "SSH from my IP via bastion/SSM (private mode)"
+  description       = "SSH from my IP via SSM (private mode, no direct access)"
 }
 
 ##############################

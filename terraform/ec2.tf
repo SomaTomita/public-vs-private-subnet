@@ -60,7 +60,7 @@ resource "aws_instance" "app" {
 
   iam_instance_profile = aws_iam_instance_profile.app.name
 
-  # IMDSv1 enabled initially (for SSRF demo), toggled to v2 in Phase 4
+  # IMDSv1 allowed (intentionally vulnerable for SSRF demonstration)
   metadata_options {
     http_endpoint = "enabled"
     http_tokens   = "optional" # IMDSv1 allowed (intentionally vulnerable)
