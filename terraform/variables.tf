@@ -40,9 +40,9 @@ variable "vpc_cidr" {
 }
 
 variable "azs" {
-  description = "Availability Zones (2 required for ALB/RDS)"
+  description = "Availability Zones (2 required for ALB/RDS). Auto-detected from region if empty."
   type        = list(string)
-  default     = ["ap-northeast-1a", "ap-northeast-1c"]
+  default     = []
 }
 
 ##############################

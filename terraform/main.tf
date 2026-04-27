@@ -1,4 +1,17 @@
 ##############################
+# AZ Lookup (auto-detect from region)
+##############################
+
+data "aws_availability_zones" "available" {
+  state = "available"
+
+  filter {
+    name   = "opt-in-status"
+    values = ["opt-in-not-required"]
+  }
+}
+
+##############################
 # VPC
 ##############################
 
@@ -18,7 +31,7 @@ resource "aws_subnet" "public" {
   count             = length(local.public_subnet_cidrs)
   vpc_id            = aws_vpc.main.id
   cidr_block        = local.public_subnet_cidrs[count.index]
-  availability_zone = var.azs[count.index]
+  availability_zone = local.azs[count.index]
 
   tags = { Name = "${var.project_name}-public-${count.index + 1}" }
 }
@@ -27,7 +40,7 @@ resource "aws_subnet" "app" {
   count             = length(local.app_subnet_cidrs)
   vpc_id            = aws_vpc.main.id
   cidr_block        = local.app_subnet_cidrs[count.index]
-  availability_zone = var.azs[count.index]
+  availability_zone = local.azs[count.index]
 
   tags = { Name = "${var.project_name}-app-${count.index + 1}" }
 }
@@ -36,7 +49,7 @@ resource "aws_subnet" "db" {
   count             = length(local.db_subnet_cidrs)
   vpc_id            = aws_vpc.main.id
   cidr_block        = local.db_subnet_cidrs[count.index]
-  availability_zone = var.azs[count.index]
+  availability_zone = local.azs[count.index]
 
   tags = { Name = "${var.project_name}-db-${count.index + 1}" }
 }
