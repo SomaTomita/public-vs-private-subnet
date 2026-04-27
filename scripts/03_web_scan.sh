@@ -141,7 +141,7 @@ for endpoint in "${ENDPOINTS[@]}"; do
             result_text+="${status_code}  ${endpoint} (redirect)"$'\n'
             ;;
         400)
-            echo -e "  ${YELLOW}${status_code}${NC}  ${endpoint} (Bad Request — endpoint exists)"
+            echo -e "  ${YELLOW}${status_code}${NC}  ${endpoint} (Bad Request — endpoint likely exists)"
             result_text+="${status_code}  ${endpoint}"$'\n'
             ;;
         403)

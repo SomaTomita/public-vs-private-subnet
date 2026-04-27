@@ -99,8 +99,11 @@ else
     echo -e "  IMDS metadata access: Failed"
     echo -e "  Response: ${imds_root:0:200}"
 
-    if echo "${imds_root}" | grep -qi "Token required\|unauthorized\|401"; then
-        print_info "IMDSv2 is enforced — Access from SSRF is difficult"
+    # NOTE: When IMDSv2 is enforced, IMDS returns HTTP 401 with an empty body.
+    # Our Flask proxy (resp.text) strips the status code, so the response will
+    # appear as an empty string rather than containing "401" or "Unauthorized".
+    if [[ -z "${imds_root}" ]] || echo "${imds_root}" | grep -qi "unauthorized\|401"; then
+        print_info "IMDSv2 is likely enforced — IMDS returned empty or 401 (no token)"
         result_text+="Verdict: BLOCKED — IMDSv2 is enabled"$'\n'
     else
         print_info "Failed to reach IMDS (possibly network or app issue)"
