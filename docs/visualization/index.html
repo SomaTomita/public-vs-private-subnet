@@ -633,7 +633,74 @@
               </figure>
             </div>
           </section>
-          <section id="section-network-diff"></section>
+          <!-- ===== Section 4 — Network Layer Diff ===== -->
+          <section id="section-network-diff" class="mt-16 scroll-mt-20">
+            <header class="mb-6">
+              <p
+                class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
+              >
+                Section 4 / Network
+              </p>
+              <h2
+                class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
+              >
+                ネットワーク層の差分
+              </h2>
+              <p
+                class="mt-2 max-w-prose text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+              >
+                同じ VPC、同じ CIDR
+                設計を共有しつつ、サブネット配置・ルーティング・SG ルールが
+                <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800"
+                  >config_mode</code
+                >
+                でどう変わるかを 1 行ずつ追跡できます。
+              </p>
+            </header>
+            <div
+              class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800/60"
+            >
+              <table
+                class="w-full min-w-[640px] divide-y divide-slate-200 text-sm dark:divide-slate-700"
+              >
+                <caption class="sr-only">
+                  Config A と Config B のネットワーク層差分比較表 (13 観点)
+                </caption>
+                <thead class="bg-slate-50 dark:bg-slate-800/80">
+                  <tr>
+                    <th
+                      scope="col"
+                      class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300"
+                    >
+                      観点
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-red-700 dark:text-red-300"
+                    >
+                      Config A (Public)
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300"
+                    >
+                      Config B (Private + ALB)
+                    </th>
+                    <th
+                      scope="col"
+                      class="hidden px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 lg:table-cell"
+                    >
+                      参照
+                    </th>
+                  </tr>
+                </thead>
+                <tbody
+                  id="network-diff-tbody"
+                  class="divide-y divide-slate-100 dark:divide-slate-700/60"
+                ></tbody>
+              </table>
+            </div>
+          </section>
           <section id="section-app-layer"></section>
           <section id="section-heatmap"></section>
           <section id="section-layer-analysis"></section>
@@ -725,6 +792,112 @@
       }
 
       // ============================================================
+      // Network Layer Diff data
+      // ============================================================
+      const NETWORK_DIFF = [
+        {
+          aspect: "EC2 配置 Subnet",
+          a: "Public Subnet (10.0.1.0/24)",
+          b: "App Private Subnet (10.0.10.0/24)",
+          ref: "terraform/ec2.tf:55-57",
+        },
+        {
+          aspect: "Public IP",
+          a: "付与あり (IGW 直行)",
+          b: "なし",
+          ref: "terraform/ec2.tf:57",
+        },
+        {
+          aspect: "Inbound 経路",
+          a: "Internet → IGW → EC2",
+          b: "Internet → IGW → ALB → EC2",
+          ref: "terraform/alb.tf:5-14",
+        },
+        {
+          aspect: "Outbound 経路",
+          a: "EC2 → IGW (Public IP)",
+          b: "EC2 → NAT GW → IGW",
+          ref: "terraform/routing.tf:35-40",
+        },
+        {
+          aspect: "Outbound IP",
+          a: "EC2 Public IP (分散)",
+          b: "NAT GW EIP (集約)",
+          ref: "terraform/nat.tf:5-10",
+        },
+        {
+          aspect: "App SG inbound",
+          a: "80 from 0.0.0.0/0 + 22 from my_ip",
+          b: "80 from ALB SG + 22 from my_ip (SSM)",
+          ref: "terraform/security_groups.tf:26-66",
+        },
+        {
+          aspect: "ALB SG",
+          a: "N/A (ALB なし)",
+          b: "80 from 0.0.0.0/0 → App SG",
+          ref: "terraform/security_groups.tf:72-103",
+        },
+        {
+          aspect: "DB SG",
+          a: "5432 from App SG",
+          b: "5432 from App SG (同じ)",
+          ref: "terraform/security_groups.tf:121-128",
+        },
+        {
+          aspect: "App Subnet Route Table",
+          a: "Public RT (0.0.0.0/0 → IGW)",
+          b: "Private RT (0.0.0.0/0 → NAT GW)",
+          ref: "terraform/routing.tf:11-46",
+        },
+        {
+          aspect: "AZ 数",
+          a: "1 (シングル AZ)",
+          b: "2 (Multi-AZ, ALB 前提)",
+          ref: "terraform/locals.tf:6",
+        },
+        {
+          aspect: "外部到達ポート",
+          a: "22, 80 が直接到達",
+          b: "80 (ALB 経由のみ)",
+          ref: "terraform/security_groups.tf:26-44",
+        },
+        {
+          aspect: "SSH 接続経路",
+          a: "ssh -i key.pem (直接)",
+          b: "SSM Session Manager 経由",
+          ref: "terraform/ec2.tf:58-66 + iam.tf",
+        },
+        {
+          aspect: "S3 Gateway Endpoint",
+          a: "あり (両 Config 共通)",
+          b: "あり (両 Config 共通)",
+          ref: "terraform/main.tf:71-86",
+        },
+      ];
+
+      function renderNetworkDiff() {
+        const tbody = document.getElementById("network-diff-tbody");
+        if (!tbody) return;
+        tbody.innerHTML = NETWORK_DIFF.map(
+          (row, i) => `
+            <tr class="${i % 2 === 0 ? "bg-white dark:bg-slate-800/40" : "bg-slate-50/60 dark:bg-slate-800/20"}">
+              <th scope="row" class="px-4 py-3 text-left align-top font-semibold text-slate-800 dark:text-slate-100">${row.aspect}</th>
+              <td class="px-4 py-3 align-top">
+                <div class="inline-flex items-start gap-1.5 rounded-md bg-red-50 px-2 py-1 text-red-800 dark:bg-red-950/40 dark:text-red-200">
+                  <span class="font-mono text-xs leading-relaxed">${row.a}</span>
+                </div>
+              </td>
+              <td class="px-4 py-3 align-top">
+                <div class="inline-flex items-start gap-1.5 rounded-md bg-emerald-50 px-2 py-1 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
+                  <span class="font-mono text-xs leading-relaxed">${row.b}</span>
+                </div>
+              </td>
+              <td class="hidden px-4 py-3 align-top font-mono text-xs text-slate-500 dark:text-slate-400 lg:table-cell">${row.ref}</td>
+            </tr>`
+        ).join("");
+      }
+
+      // ============================================================
       // Global Config A/B toggle (public | private | compare)
       // ============================================================
       function getInitialMode() {
@@ -766,6 +939,7 @@
       document.addEventListener("DOMContentLoaded", () => {
         renderTOC();
         setupConfigToggle();
+        renderNetworkDiff();
 
         // Lucide icons
         if (window.lucide) lucide.createIcons();
