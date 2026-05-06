@@ -75,6 +75,39 @@
       .dark ::-webkit-scrollbar-thumb {
         background: rgba(148, 163, 184, 0.3);
       }
+
+      /* ===== Config mode highlight ===== */
+      /* Default (compare): both panels equally visible */
+      .config-panel {
+        transition: opacity 0.25s ease, transform 0.25s ease,
+          box-shadow 0.25s ease;
+      }
+      html[data-mode="public"] .config-panel[data-config="private"],
+      html[data-mode="private"] .config-panel[data-config="public"] {
+        opacity: 0.45;
+      }
+      html[data-mode="public"] .config-panel[data-config="public"] {
+        box-shadow: 0 0 0 2px rgb(239 68 68 / 0.7);
+      }
+      html[data-mode="private"] .config-panel[data-config="private"] {
+        box-shadow: 0 0 0 2px rgb(16 185 129 / 0.7);
+      }
+      /* Active mode button styling */
+      html[data-mode="public"] [data-mode-btn="public"],
+      html[data-mode="private"] [data-mode-btn="private"],
+      html[data-mode="compare"] [data-mode-btn="compare"] {
+        --tw-ring-offset-shadow: 0 0 #0000;
+        background-color: rgb(238 242 255);
+        color: rgb(67 56 202);
+        border-color: rgb(165 180 252);
+      }
+      html.dark[data-mode="public"] [data-mode-btn="public"],
+      html.dark[data-mode="private"] [data-mode-btn="private"],
+      html.dark[data-mode="compare"] [data-mode-btn="compare"] {
+        background-color: rgb(49 46 129);
+        color: rgb(199 210 254);
+        border-color: rgb(99 102 241);
+      }
     </style>
   </head>
   <body
@@ -281,7 +314,74 @@
               </dl>
             </div>
           </section>
-          <section id="section-toggle"></section>
+          <!-- ===== Section 2 — Configuration Toggle ===== -->
+          <section id="section-toggle" class="mt-12 scroll-mt-20">
+            <div
+              class="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800/60 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <h2
+                  class="text-lg font-bold text-slate-900 dark:text-white"
+                >
+                  Configuration Toggle
+                </h2>
+                <p
+                  class="mt-1 text-sm text-slate-600 dark:text-slate-400"
+                >
+                  ハイライトを切り替えて Config A / Config B
+                  に集中するか、両方を並列で比較できます。
+                </p>
+              </div>
+              <div
+                class="flex items-center gap-2"
+                role="radiogroup"
+                aria-label="Config モード切替"
+              >
+                <button
+                  type="button"
+                  data-mode-btn="public"
+                  class="cursor-pointer inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-red-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-red-950/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                  role="radio"
+                  aria-checked="false"
+                >
+                  <i
+                    data-lucide="globe-2"
+                    class="h-4 w-4 text-red-500"
+                    aria-hidden="true"
+                  ></i>
+                  Config A (Public)
+                </button>
+                <button
+                  type="button"
+                  data-mode-btn="private"
+                  class="cursor-pointer inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-emerald-950/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                  role="radio"
+                  aria-checked="false"
+                >
+                  <i
+                    data-lucide="lock"
+                    class="h-4 w-4 text-emerald-500"
+                    aria-hidden="true"
+                  ></i>
+                  Config B (Private)
+                </button>
+                <button
+                  type="button"
+                  data-mode-btn="compare"
+                  class="cursor-pointer inline-flex items-center gap-1.5 rounded-md border border-indigo-300 bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 dark:border-indigo-700 dark:bg-indigo-950 dark:text-indigo-200 dark:hover:bg-indigo-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                  role="radio"
+                  aria-checked="true"
+                >
+                  <i
+                    data-lucide="columns-2"
+                    class="h-4 w-4"
+                    aria-hidden="true"
+                  ></i>
+                  Compare
+                </button>
+              </div>
+            </div>
+          </section>
           <section id="section-topology"></section>
           <section id="section-network-diff"></section>
           <section id="section-app-layer"></section>
@@ -374,8 +474,48 @@
         sections.forEach((s) => observer.observe(s));
       }
 
+      // ============================================================
+      // Global Config A/B toggle (public | private | compare)
+      // ============================================================
+      function getInitialMode() {
+        const validModes = ["public", "private", "compare"];
+        const hash = window.location.hash.match(/mode=(\w+)/);
+        if (hash && validModes.includes(hash[1])) return hash[1];
+        const stored = localStorage.getItem("config-mode");
+        if (stored && validModes.includes(stored)) return stored;
+        return "compare";
+      }
+
+      function setMode(mode) {
+        document.documentElement.setAttribute("data-mode", mode);
+        localStorage.setItem("config-mode", mode);
+        // Sync hash without polluting history
+        const hash = `#mode=${mode}`;
+        if (window.location.hash !== hash) {
+          history.replaceState(null, "", hash);
+        }
+        // Update aria-checked
+        document.querySelectorAll("[data-mode-btn]").forEach((btn) => {
+          btn.setAttribute(
+            "aria-checked",
+            btn.getAttribute("data-mode-btn") === mode ? "true" : "false"
+          );
+        });
+      }
+
+      function setupConfigToggle() {
+        const initial = getInitialMode();
+        setMode(initial);
+        document.querySelectorAll("[data-mode-btn]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            setMode(btn.getAttribute("data-mode-btn"));
+          });
+        });
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
         renderTOC();
+        setupConfigToggle();
 
         // Lucide icons
         if (window.lucide) lucide.createIcons();
