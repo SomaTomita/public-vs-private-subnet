@@ -644,27 +644,30 @@
               <h2
                 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
               >
-                ネットワーク層の差分
+                ネットワーク層の差分 — この差で攻撃結果はどう変わるか
               </h2>
               <p
                 class="mt-2 max-w-prose text-sm leading-relaxed text-slate-600 dark:text-slate-400"
               >
-                同じ VPC、同じ CIDR
-                設計を共有しつつ、サブネット配置・ルーティング・SG ルールが
+                同じ VPC、同じ CIDR 設計を共有しつつ、サブネット配置・ルーティング・SG ルールが
                 <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800"
                   >config_mode</code
                 >
-                でどう変わるかを 1 行ずつ追跡できます。
+                でどう変わるか、そして
+                <strong class="text-slate-800 dark:text-slate-100"
+                  >その差が攻撃結果にどう跳ね返るか</strong
+                >
+                を 1 行ずつ追跡します。
               </p>
             </header>
             <div
               class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800/60"
             >
               <table
-                class="w-full min-w-[640px] divide-y divide-slate-200 text-sm dark:divide-slate-700"
+                class="w-full min-w-[960px] divide-y divide-slate-200 text-sm dark:divide-slate-700"
               >
                 <caption class="sr-only">
-                  Config A と Config B のネットワーク層差分比較表 (13 観点)
+                  Config A と Config B のネットワーク層差分比較表 + 攻撃結果への影響 (9 観点)
                 </caption>
                 <thead class="bg-slate-50 dark:bg-slate-800/80">
                   <tr>
@@ -688,9 +691,9 @@
                     </th>
                     <th
                       scope="col"
-                      class="hidden px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 lg:table-cell"
+                      class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300"
                     >
-                      参照
+                      この差が生む攻撃結果の違い
                     </th>
                   </tr>
                 </thead>
@@ -701,13 +704,113 @@
               </table>
             </div>
           </section>
-          <!-- ===== Section 5 — Application Layer ===== -->
+          <!-- ===== Section 5 — Hybrid Scenario (Public + ALB) ===== -->
+          <section id="section-hybrid" class="mt-16 scroll-mt-20">
+            <header class="mb-6">
+              <p
+                class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
+              >
+                Section 5 / Hybrid
+              </p>
+              <h2
+                class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
+              >
+                もし Config A に ALB を足したら? — ALB 単独 vs Private 配置の本質
+              </h2>
+              <p
+                class="mt-2 max-w-prose text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+              >
+                "ALB を入れれば安全" は誤解。
+                <strong class="text-slate-800 dark:text-slate-100"
+                  >ALB が提供する防御層</strong
+                >
+                と <strong class="text-slate-800 dark:text-slate-100">Private 配置が提供する防御層</strong>
+                は別物で、互いに代替できません。Public Subnet に置いたままの EC2 に
+                ALB を前置きしたハイブリッド構成では、何が変わって何が変わらないかを
+                並べて確認します。
+              </p>
+            </header>
+
+            <!-- 3-column comparison -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800/60">
+              <table class="w-full min-w-[820px] divide-y divide-slate-200 text-sm dark:divide-slate-700">
+                <caption class="sr-only">
+                  Config A (Public 直接) / Hybrid (Public + ALB) / Config B (Private + ALB) の3列比較
+                </caption>
+                <thead class="bg-slate-50 dark:bg-slate-800/80">
+                  <tr>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">観点</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-red-700 dark:text-red-300">
+                      Config A<br/><span class="font-mono normal-case text-[10px] text-slate-500 dark:text-slate-400">Public 直接</span>
+                    </th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                      Hybrid<br/><span class="font-mono normal-case text-[10px] text-slate-500 dark:text-slate-400">Public + ALB</span>
+                    </th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+                      Config B<br/><span class="font-mono normal-case text-[10px] text-slate-500 dark:text-slate-400">Private + ALB</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="hybrid-tbody" class="divide-y divide-slate-100 dark:divide-slate-700/60"></tbody>
+              </table>
+            </div>
+
+            <!-- Key Insight callout -->
+            <blockquote class="mt-6 rounded-xl border-l-4 border-indigo-500 bg-indigo-50/70 p-5 text-sm leading-relaxed text-indigo-900 dark:border-indigo-400 dark:bg-indigo-950/40 dark:text-indigo-100">
+              <p class="text-base font-bold">
+                ALB は "L7 強制 + WAF 挟込" の防御層。Private 配置は "L3 不可達 + Public IP 消去" の防御層。これらは互いに代替できない。
+              </p>
+              <p class="mt-2 text-indigo-800 dark:text-indigo-200">
+                ALB だけを足しても、EC2 が Public Subnet にあって Public IP を持つ限り、攻撃者にとっての「対象 IP の発見」「ポートスキャンへの応答」は変わらない。
+                Private Subnet 配置の本質は、<strong>ネットワーク経路自体を切ること</strong>である。
+              </p>
+            </blockquote>
+
+            <!-- Why Hybrid exists in practice -->
+            <div class="mt-6 grid gap-4 lg:grid-cols-2">
+              <div class="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800/60">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="history" class="h-5 w-5 text-slate-500" aria-hidden="true"></i>
+                  <h3 class="text-sm font-bold text-slate-900 dark:text-white">なぜ Hybrid 構成が実務で観測されるか</h3>
+                </div>
+                <ul class="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                  <li class="flex items-start gap-2">
+                    <i data-lucide="dot" class="mt-0 h-4 w-4 shrink-0 text-slate-400" aria-hidden="true"></i>
+                    レガシー移行中の中間状態 (EC2 の Public IP を一括で外せない事情)
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <i data-lucide="dot" class="mt-0 h-4 w-4 shrink-0 text-slate-400" aria-hidden="true"></i>
+                    "ALB を入れれば安全" という誤解に基づく構成
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <i data-lucide="dot" class="mt-0 h-4 w-4 shrink-0 text-slate-400" aria-hidden="true"></i>
+                    SaaS / 外部統合の都合で IP 直接アクセスを許可しているケース
+                  </li>
+                </ul>
+              </div>
+              <div class="rounded-xl border border-emerald-300 bg-emerald-50/60 p-5 dark:border-emerald-700/60 dark:bg-emerald-950/30">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="list-checks" class="h-5 w-5 text-emerald-600 dark:text-emerald-400" aria-hidden="true"></i>
+                  <h3 class="text-sm font-bold text-emerald-900 dark:text-emerald-100">推奨: ALB を入れたら同時に行うべきこと</h3>
+                </div>
+                <ol class="mt-3 list-decimal space-y-1.5 pl-5 text-sm text-emerald-900 dark:text-emerald-100">
+                  <li>EC2 を App Private Subnet に移動する</li>
+                  <li>EC2 の Public IP を外す (associate_public_ip_address = false)</li>
+                  <li>NAT Gateway を導入し outbound のみ許可する</li>
+                  <li>App SG inbound を <code class="font-mono text-xs">ALB SG only</code> に絞る</li>
+                  <li>SSH (22) を閉じ、SSM Session Manager に切替える</li>
+                </ol>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===== Section 6 — Application Layer ===== -->
           <section id="section-app-layer" class="mt-16 scroll-mt-20">
             <header class="mb-6">
               <p
                 class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
               >
-                Section 5 / Application
+                Section 6 / Application
               </p>
               <h2
                 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
@@ -719,7 +822,7 @@
               >
                 Flask app は user_data で両 Config に同じバイナリが展開されます。
                 <strong>違うのは入口だけ。出口の被害は?</strong> という問いの答えを、
-                次の Section 6 のヒートマップで確認します。
+                次の Section 7 のヒートマップで確認します。
               </p>
             </header>
 
@@ -811,13 +914,13 @@ def fetch():
               </div>
             </div>
           </section>
-          <!-- ===== Section 6 — Attack Result Heatmap ===== -->
+          <!-- ===== Section 7 — Attack Result Heatmap ===== -->
           <section id="section-heatmap" class="mt-16 scroll-mt-20">
             <header class="mb-6">
               <p
                 class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
               >
-                Section 6 / Heatmap
+                Section 7 / Heatmap
               </p>
               <h2
                 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
@@ -875,89 +978,96 @@ def fetch():
               </table>
             </div>
           </section>
-          <!-- ===== Section 7 — Layer-by-Layer Analysis ===== -->
+          <!-- ===== Section 8 — Layer-by-Layer Analysis ===== -->
           <section id="section-layer-analysis" class="mt-16 scroll-mt-20">
             <header class="mb-6">
               <p
                 class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
               >
-                Section 7 / Layers
+                Section 8 / Layers
               </p>
               <h2
                 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
               >
-                Layer-by-Layer Analysis
+                Layer-by-Layer Analysis — なぜ防げる / 防げないのか
               </h2>
               <p
                 class="mt-2 max-w-prose text-sm leading-relaxed text-slate-600 dark:text-slate-400"
               >
                 Private Subnet がどの層に効き、どの層では役に立たないのかをレイヤーで分解します。
+                各カードに <strong class="text-slate-800 dark:text-slate-100">"なぜ防げる / 防げないか"</strong> の具体メカニズムを併記します。
               </p>
             </header>
             <div id="layer-cards" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
           </section>
-          <!-- ===== Section 8 — Cost Comparison ===== -->
-          <section id="section-cost" class="mt-16 scroll-mt-20">
+
+          <!-- ===== Section 9 — Defense Matrix ===== -->
+          <section id="section-defense-matrix" class="mt-16 scroll-mt-20">
             <header class="mb-6">
               <p
                 class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
               >
-                Section 8 / Cost
+                Section 9 / Defense Matrix
               </p>
               <h2
                 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
               >
-                Cost Comparison
+                Defense Matrix — どの防御が何に効くのか
               </h2>
               <p
                 class="mt-2 max-w-prose text-sm leading-relaxed text-slate-600 dark:text-slate-400"
               >
-                Config B のコスト増分は主に NAT Gateway と ALB。1 時間あたりの試算 (ap-northeast-1, on-demand)。
+                「Private 配置」「ALB 介在」「IMDSv2 強制」「Least-Privilege IAM」「AWS WAF」「Egress Filtering (NW Firewall + DNS Firewall)」 の 6 防御レイヤーが、
+                主要攻撃ベクトルに対してどう効くかを 1 枚で示します。
               </p>
             </header>
-            <div class="grid gap-6 lg:grid-cols-2">
-              <!-- Bar chart -->
-              <div class="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800/60">
-                <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100">時間あたり推定コスト</h3>
-                <div class="mt-4 space-y-5" id="cost-bars"></div>
-                <p class="mt-4 text-[11px] text-slate-500 dark:text-slate-400">
-                  ※ Free Tier 適用時、EC2 / RDS は無料枠内 (Config A は実質 ~$0/hr)。
-                  リージョンにより変動 (us-east-1 は ~20-30% 安価)。
-                </p>
-              </div>
-              <!-- Breakdown table -->
-              <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/60">
-                <table class="w-full text-sm">
-                  <caption class="sr-only">Config A / Config B のコスト内訳</caption>
-                  <thead class="bg-slate-50 dark:bg-slate-800/80">
-                    <tr>
-                      <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Component</th>
-                      <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-red-700 dark:text-red-300">Config A</th>
-                      <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">Config B</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-slate-100 dark:divide-slate-700/60 font-mono text-xs">
-                    <tr><th scope="row" class="px-4 py-2.5 text-left font-medium text-slate-700 dark:text-slate-200">EC2 + RDS</th><td class="px-4 py-2.5 text-right">$0.03–0.05/hr</td><td class="px-4 py-2.5 text-right">$0.05/hr</td></tr>
-                    <tr><th scope="row" class="px-4 py-2.5 text-left font-medium text-slate-700 dark:text-slate-200">NAT Gateway</th><td class="px-4 py-2.5 text-right text-slate-400">—</td><td class="px-4 py-2.5 text-right">$0.062/hr</td></tr>
-                    <tr><th scope="row" class="px-4 py-2.5 text-left font-medium text-slate-700 dark:text-slate-200">ALB</th><td class="px-4 py-2.5 text-right text-slate-400">—</td><td class="px-4 py-2.5 text-right">$0.024/hr</td></tr>
-                    <tr class="bg-slate-50 dark:bg-slate-800/40">
-                      <th scope="row" class="px-4 py-3 text-left text-sm font-bold text-slate-900 dark:text-white">合計</th>
-                      <td class="px-4 py-3 text-right text-sm font-bold text-red-700 dark:text-red-300">$0.03–0.05/hr</td>
-                      <td class="px-4 py-3 text-right text-sm font-bold text-emerald-700 dark:text-emerald-300">$0.13–0.17/hr</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </section>
 
-          <!-- ===== Section 9 — Resource Switching Matrix ===== -->
+            <!-- Legend -->
+            <div class="mb-4 flex flex-wrap items-center gap-3 text-xs">
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 font-semibold text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-100">
+                <i data-lucide="check-circle-2" class="h-3.5 w-3.5" aria-hidden="true"></i>
+                効く (主要対策)
+              </span>
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 font-semibold text-amber-800 dark:bg-amber-900/60 dark:text-amber-100">
+                <i data-lucide="circle-dashed" class="h-3.5 w-3.5" aria-hidden="true"></i>
+                部分的 (条件付き)
+              </span>
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                <i data-lucide="minus" class="h-3.5 w-3.5" aria-hidden="true"></i>
+                — (扱わない)
+              </span>
+            </div>
+
+            <!-- Matrix table -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800/60">
+              <table class="w-full min-w-[920px] divide-y divide-slate-200 text-sm dark:divide-slate-700">
+                <caption class="sr-only">攻撃ベクトル × 防御レイヤー マトリクス (9 攻撃 × 6 防御)</caption>
+                <thead class="bg-slate-50 dark:bg-slate-800/80">
+                  <tr id="defense-matrix-header"></tr>
+                </thead>
+                <tbody id="defense-matrix-tbody" class="divide-y divide-slate-100 dark:divide-slate-700/60"></tbody>
+              </table>
+            </div>
+
+            <!-- Key Insight -->
+            <blockquote class="mt-6 rounded-xl border-l-4 border-rose-500 bg-rose-50/70 p-5 text-sm leading-relaxed text-rose-900 dark:border-rose-400 dark:bg-rose-950/40 dark:text-rose-100">
+              <p class="text-base font-bold">
+                Private 配置は 2 行 (Network Boundary) に効くだけ。残りは独立した防御層が必要。
+              </p>
+              <p class="mt-2 text-rose-800 dark:text-rose-200">
+                「Private にしたから安全」は <strong>9 行のうち 2 行だけ</strong>
+                という誤解を正すことが本セクションの目的。 SSRF / IAM 悪用 / outbound C2 / データ持ち出し は
+                Private 配置とは独立した IMDSv2 強制・Least-Privilege IAM・WAF・Egress Filter を組み合わせて初めて塞がる。
+              </p>
+            </blockquote>
+          </section>
+          <!-- ===== Section 10 — Resource Switching Matrix ===== -->
           <section id="section-resource-matrix" class="mt-16 scroll-mt-20">
             <header class="mb-6">
               <p
                 class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
               >
-                Section 9 / Switching
+                Section 10 / Switching
               </p>
               <h2
                 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
@@ -1016,13 +1126,13 @@ def fetch():
               </div>
             </div>
           </section>
-          <!-- ===== Section 10 — Key Takeaways / Conclusion ===== -->
+          <!-- ===== Section 11 — Key Takeaways / Conclusion ===== -->
           <section id="section-conclusion" class="mt-16 scroll-mt-20">
             <header class="mb-6">
               <p
                 class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
               >
-                Section 10 / Conclusion
+                Section 11 / Conclusion
               </p>
               <h2
                 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
@@ -1204,10 +1314,11 @@ def fetch():
         { id: "section-toggle", label: "Config Toggle" },
         { id: "section-topology", label: "Network Topology" },
         { id: "section-network-diff", label: "Network Layer" },
+        { id: "section-hybrid", label: "Hybrid Scenario" },
         { id: "section-app-layer", label: "Application Layer" },
         { id: "section-heatmap", label: "Attack Heatmap" },
         { id: "section-layer-analysis", label: "Layer Analysis" },
-        { id: "section-cost", label: "Cost Comparison" },
+        { id: "section-defense-matrix", label: "Defense Matrix" },
         { id: "section-resource-matrix", label: "Resource Matrix" },
         { id: "section-conclusion", label: "Key Takeaways" },
       ];
@@ -1255,54 +1366,6 @@ def fetch():
       }
 
       // ============================================================
-      // Cost bars (CSS-only horizontal bar chart)
-      // ============================================================
-      // Use the upper bound of each band so the visual diff is honest.
-      const COST_DATA = [
-        {
-          label: "Config A (Public)",
-          value: 0.05,
-          display: "$0.03–0.05/hr",
-          color: "from-red-400 to-red-500",
-          tone: "text-red-700 dark:text-red-300",
-        },
-        {
-          label: "Config B (Private + ALB)",
-          value: 0.17,
-          display: "$0.13–0.17/hr",
-          color: "from-emerald-400 to-emerald-500",
-          tone: "text-emerald-700 dark:text-emerald-300",
-        },
-      ];
-
-      function renderCostBars() {
-        const wrap = document.getElementById("cost-bars");
-        if (!wrap) return;
-        const max = Math.max(...COST_DATA.map((c) => c.value));
-        wrap.innerHTML = COST_DATA.map((c) => {
-          const pct = Math.round((c.value / max) * 100);
-          return `
-            <div>
-              <div class="mb-1.5 flex items-center justify-between text-xs font-medium">
-                <span class="text-slate-700 dark:text-slate-200">${c.label}</span>
-                <span class="font-mono font-semibold ${c.tone}">${c.display}</span>
-              </div>
-              <div class="h-3 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-700">
-                <div
-                  class="h-full rounded-full bg-gradient-to-r ${c.color}"
-                  style="width: ${pct}%"
-                  role="progressbar"
-                  aria-valuenow="${c.value}"
-                  aria-valuemin="0"
-                  aria-valuemax="${max}"
-                  aria-label="${c.label} ${c.display}"
-                ></div>
-              </div>
-            </div>`;
-        }).join("");
-      }
-
-      // ============================================================
       // Layer-by-Layer Analysis cards
       // ============================================================
       const LAYER_CARDS = [
@@ -1313,6 +1376,9 @@ def fetch():
           icon: "shield-check",
           summary:
             "Private + ALB により外部到達面が大幅に縮小。Port scan / SSH / Direct DB が遮断される。",
+          mechanismLabel: "なぜ Private 配置で防げるか",
+          mechanism:
+            "Private Subnet には IGW へのデフォルトルートが存在せず、EC2 自体に Public IP が付与されない。これにより外部から ICMP / TCP レベルでの不可達性が成立する。SG (ステートフル FW) で同等の効果を得ることもできるが、SG はミスが許されない構成 (誤って 0.0.0.0/0 を許可) に対して脆弱。Subnet レベルの不可達性は Defense in Depth として SG の上に追加された層になる。",
           scripts: ["scripts/01_portscan.sh", "scripts/02_ssh_probe.sh", "scripts/05_db_probe.sh"],
         },
         {
@@ -1322,6 +1388,9 @@ def fetch():
           icon: "alert-triangle",
           summary:
             "ALB は HTTP を素通し。SSRF, web vuln, /fetch endpoint は両 Config で成立する。",
+          mechanismLabel: "なぜ Private 配置では防げないか",
+          mechanism:
+            "SSRF はアプリプロセス内部からの HTTP リクエストによって発生する。EC2 の出口は (Config B でも) NAT GW 経由でインターネットに繋がっており、また IMDS の link-local IP (169.254.169.254) は EC2 ローカルからのみ到達可能で、VPC 境界の概念外。よってネットワーク境界をどう設計しても、アプリが任意 URL をフェッチできる限り IMDS には届く。対策は IMDSv2 強制 / SSRF 修正 / WAF パターンマッチが本筋。",
           scripts: ["scripts/03_web_scan.sh", "scripts/04_ssrf_metadata.sh", "scripts/10_ssrf_internal_recon.sh"],
         },
         {
@@ -1331,6 +1400,9 @@ def fetch():
           icon: "key-round",
           summary:
             "盗まれた IAM credentials は AWS control plane で動くため VPC 境界を超える。SCP + aws:SourceVpc が必要。",
+          mechanismLabel: "なぜ Private 配置では防げないか",
+          mechanism:
+            "IAM 認証情報による AWS API 呼び出しは sts.amazonaws.com / s3.amazonaws.com など AWS のグローバル / リージョナルエンドポイント宛に行われ、VPC のトポロジ (Public / Private) とは独立した経路で評価される。盗まれたクレデンシャルは攻撃者の手元から世界中どこでも使えるため、VPC 境界の有無は無関係。塞ぐには IAM ポリシーの aws:SourceVpc / aws:SourceVpce 条件、SCP、Permission Boundary など API 層側の制約が必要。",
           scripts: ["scripts/11_iam_privilege_escalation.sh", "scripts/15_iam_blast_radius.sh", "scripts/08_post_exploitation.sh"],
         },
         {
@@ -1340,6 +1412,9 @@ def fetch():
           icon: "layers",
           summary:
             "Config B 限定で生まれる新しい攻撃面。Host header injection, HTTP method tampering 等。WAF + HTTPS 強制で対処。",
+          mechanismLabel: "なぜ ALB 自体が攻撃面になるか",
+          mechanism:
+            "ALB は HTTP/HTTPS ヘッダを後段に転送する設計のため、Host / X-Forwarded-For / Method 等が backend のロジック (キャッシュキー、認可、リダイレクト) に流れ込む。ALB は HTTP/2 の正規化や oversized header の拒否は行うが、アプリの判定ロジックそのものを保護はしない。AWS WAF の rule-based filtering、host-based listener rule、HTTPS-only enforcement、access logs を組み合わせる必要がある。",
           scripts: ["scripts/12_alb_attacks.sh"],
         },
         {
@@ -1349,6 +1424,9 @@ def fetch():
           icon: "arrow-up-right",
           summary:
             "NAT GW は egress を絞らない。C2 channel / data exfiltration を防ぐには Network Firewall + DNS Firewall。",
+          mechanismLabel: "なぜ Private 配置では防げないか",
+          mechanism:
+            "NAT Gateway は「インターネットに出すかどうか」しか制御しない (送信元 IP の集約と stateful translation のみ)。宛先 IP / ドメイン / プロトコルでの egress 制限は提供しない。よって C2 サーバ宛ての HTTPS / DNS exfil / 細工した DNS query はすべて素通り。塞ぐには AWS Network Firewall の suricata ルール、Route 53 Resolver DNS Firewall でのドメイン名ブロック、egress SG での宛先 IP 制限を多層で適用する必要がある。",
           scripts: ["scripts/06_outbound_check.sh", "scripts/13_outbound_c2.sh", "scripts/16_data_exfiltration.sh"],
         },
         {
@@ -1358,6 +1436,9 @@ def fetch():
           icon: "network",
           summary:
             "VPC 内部は両 Config 同条件。micro-segmentation と SG ベースの厳密な隔離が必要。",
+          mechanismLabel: "なぜ Private 配置では防げないか",
+          mechanism:
+            "Private 配置は「外から内」の到達は塞ぐが、「内から内」の lateral movement は塞がない。同一 VPC 内では Subnet 間ルーティングが local route で常時開通しており、SG が許可した範囲では EC2 間 / EC2 → RDS / EC2 → 別ワークロードへの通信が通る。塞ぐには SG の relference rule で App ↔ DB 以外の通信を deny、Network ACL でサブネット粒度の遮断、AWS Network Firewall でのマイクロセグメンテーションが必要。",
           scripts: ["scripts/09_internal_recon.sh", "scripts/14_ssrf_to_rds.sh", "scripts/18_detection_evasion.sh"],
         },
       ];
@@ -1404,6 +1485,10 @@ def fetch():
                 <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold ${t.badge}">${c.status}</span>
               </div>
               <p class="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">${c.summary}</p>
+              <div class="mt-4 rounded-md border-l-4 border-indigo-400 bg-white/70 px-3 py-2 dark:border-indigo-500 dark:bg-slate-900/40">
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">${c.mechanismLabel}</p>
+                <p class="mt-1 text-xs leading-relaxed text-slate-700 dark:text-slate-200">${c.mechanism}</p>
+              </div>
               <ul class="mt-3 space-y-1 border-t border-slate-200 pt-3 dark:border-slate-700">${scripts}</ul>
             </article>`;
         }).join("");
@@ -1535,86 +1620,72 @@ def fetch():
       }
 
       // ============================================================
-      // Network Layer Diff data
+      // Network Layer Diff data — security-focused, no Terraform refs
+      // Each row: aspect | Config A | Config B | Attack consequence
       // ============================================================
       const NETWORK_DIFF = [
         {
           aspect: "EC2 配置 Subnet",
           a: "Public Subnet (10.0.1.0/24)",
           b: "App Private Subnet (10.0.10.0/24)",
-          ref: "terraform/ec2.tf:55-57",
+          consequence:
+            "A は IGW のルートが EC2 まで届くため、外部からポートスキャナに応答する。B は IGW が Private Subnet に届かず、攻撃者からは「アドレス自体が存在しない」と区別がつかない。これは SG では再現できない L3 の不可達性。",
         },
         {
-          aspect: "Public IP",
-          a: "付与あり (IGW 直行)",
+          aspect: "Public IP の付与",
+          a: "あり",
           b: "なし",
-          ref: "terraform/ec2.tf:57",
+          consequence:
+            "A は Shodan / Censys にインデックスされ、IP 直撃の brute-force・DDoS・ゼロデイ漁りの標的になる。B は外部に IP が存在せず、公開検索エンジンに載らない = 攻撃者が「狙う対象」を見つけられない。攻撃の起点そのものが消える。",
         },
         {
           aspect: "Inbound 経路",
-          a: "Internet → IGW → EC2",
-          b: "Internet → IGW → ALB → EC2",
-          ref: "terraform/alb.tf:5-14",
+          a: "Internet → IGW → EC2 (L3 直接)",
+          b: "Internet → IGW → ALB (L7) → EC2",
+          consequence:
+            "A は任意の TCP ポートで攻撃者と TCP/IP セッションが成立する。SSH(22), DB(5432), RDP(3389), 不要に開いた管理ポート全てが探索対象。B は ALB が L7 ロードバランサであるため HTTP/HTTPS しか後段に転送しない。22/5432/3389 は L4 で物理的に届かない (SG ルールではなく LB の構造的特性)。",
         },
         {
-          aspect: "Outbound 経路",
-          a: "EC2 → IGW (Public IP)",
-          b: "EC2 → NAT GW → IGW",
-          ref: "terraform/routing.tf:35-40",
+          aspect: "80番ポートの前段",
+          a: "EC2 が直接受ける",
+          b: "ALB が前段で終端",
+          consequence:
+            "A では HTTP リクエストが直接アプリに届くため、WAF を挟む場所がない (CloudFront を別途配置しない限り)。B では ALB に AWS WAF をアタッチでき、SQL injection / XSS パターンや既知 CVE 攻撃をエッジで拒否できる。host-based routing でドメイン単位の制御も可能。",
         },
         {
-          aspect: "Outbound IP",
-          a: "EC2 Public IP (分散)",
+          aspect: "Outbound 送信元 IP",
+          a: "各 EC2 の Public IP (個別)",
           b: "NAT GW EIP (集約)",
-          ref: "terraform/nat.tf:5-10",
+          consequence:
+            "A では侵害された EC2 の C2 通信が個別 Public IP から出るため、検知ポイントが分散する。B では侵害後の outbound が単一 EIP に集約され、監視・脅威インテリジェンス対比が容易。ただし NAT GW 自体は egress フィルタではないため、行き先制御は別途 Network Firewall / DNS Firewall が必要。",
         },
         {
-          aspect: "App SG inbound",
-          a: "80 from 0.0.0.0/0 + 22 from my_ip",
-          b: "80 from ALB SG + 22 from my_ip (SSM)",
-          ref: "terraform/security_groups.tf:26-66",
+          aspect: "App SG Inbound ルール",
+          a: "TCP 80 from 0.0.0.0/0, TCP 22 from my_ip",
+          b: "TCP 80 from ALB SG (referenced), TCP 22 from my_ip",
+          consequence:
+            "A は SG ミス (例: 0.0.0.0/0 で 22 を開けてしまう運用ミス) が即座に世界露出につながる。B は EC2 SG に referenced security group rule (ALB SG only) が設定されており、SG ミスがあっても EC2 は ALB 経由でしか到達されない。多層防御として SG ミスを 1 段吸収する。",
         },
         {
-          aspect: "ALB SG",
-          a: "N/A (ALB なし)",
-          b: "80 from 0.0.0.0/0 → App SG",
-          ref: "terraform/security_groups.tf:72-103",
+          aspect: "SSH アクセス経路",
+          a: "TCP 22 を my_ip に開放 → 直接 SSH",
+          b: "SSH ポート閉鎖 → SSM Session Manager 経由 (IAM 認証)",
+          consequence:
+            "A では my_ip の漏洩・変更検知漏れ・VPN 経由バイパスがあれば 22 が世界に向く。brute-force や既知 sshd CVE の標的になり続ける。B では 22 が物理的に閉じており、認証経路が AWS IAM に置換される。MFA・SCP・aws:SourceVpc 条件・CloudTrail 監査が標準で適用され、認証情報盗難への防御層が 1 つ増える。",
         },
         {
-          aspect: "DB SG",
-          a: "5432 from App SG",
-          b: "5432 from App SG (同じ)",
-          ref: "terraform/security_groups.tf:121-128",
+          aspect: "RDS への到達経路",
+          a: "Internet → EC2 (Public IP) → RDS",
+          b: "Internet → ALB → EC2 (Private) → RDS",
+          consequence:
+            "DB SG (5432 from App SG) は同じ。但し A では EC2 自体が世界に晒されているので、EC2 を踏み台にして DB に到達されやすい。B では EC2 への侵入経路が ALB 経由 (HTTP) に限定されるため、攻撃者は HTTP 上の脆弱性 (今回の SSRF) を経由しない限り DB に到達できない。攻撃チェーンの段数が増える = 各段で検知の機会が増える。",
         },
         {
-          aspect: "App Subnet Route Table",
-          a: "Public RT (0.0.0.0/0 → IGW)",
-          b: "Private RT (0.0.0.0/0 → NAT GW)",
-          ref: "terraform/routing.tf:11-46",
-        },
-        {
-          aspect: "AZ 数",
-          a: "1 (シングル AZ)",
-          b: "2 (Multi-AZ, ALB 前提)",
-          ref: "terraform/locals.tf:6",
-        },
-        {
-          aspect: "外部到達ポート",
-          a: "22, 80 が直接到達",
-          b: "80 (ALB 経由のみ)",
-          ref: "terraform/security_groups.tf:26-44",
-        },
-        {
-          aspect: "SSH 接続経路",
-          a: "ssh -i key.pem (直接)",
-          b: "SSM Session Manager 経由",
-          ref: "terraform/ec2.tf:58-66 + iam.tf",
-        },
-        {
-          aspect: "S3 Gateway Endpoint",
-          a: "あり (両 Config 共通)",
-          b: "あり (両 Config 共通)",
-          ref: "terraform/main.tf:71-86",
+          aspect: "AZ の冗長性",
+          a: "1 AZ (シングル)",
+          b: "2 AZ (ALB の制約)",
+          consequence:
+            "攻撃面の広さ自体は不変 (AZ が増えても外部公開面は同じ)。可用性のための差であり、セキュリティ観点では中立。逆に管理対象 Subnet / SG / RT が増えるため、設定ミスのリスクが上がる側面もある。",
         },
       ];
 
@@ -1624,20 +1695,212 @@ def fetch():
         tbody.innerHTML = NETWORK_DIFF.map(
           (row, i) => `
             <tr class="${i % 2 === 0 ? "bg-white dark:bg-slate-800/40" : "bg-slate-50/60 dark:bg-slate-800/20"}">
-              <th scope="row" class="px-4 py-3 text-left align-top font-semibold text-slate-800 dark:text-slate-100">${row.aspect}</th>
-              <td class="px-4 py-3 align-top">
+              <th scope="row" class="px-4 py-3 text-left align-top font-semibold text-slate-800 dark:text-slate-100 w-44">${row.aspect}</th>
+              <td class="px-4 py-3 align-top w-56">
                 <div class="inline-flex items-start gap-1.5 rounded-md bg-red-50 px-2 py-1 text-red-800 dark:bg-red-950/40 dark:text-red-200">
                   <span class="font-mono text-xs leading-relaxed">${row.a}</span>
                 </div>
               </td>
-              <td class="px-4 py-3 align-top">
+              <td class="px-4 py-3 align-top w-64">
                 <div class="inline-flex items-start gap-1.5 rounded-md bg-emerald-50 px-2 py-1 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
                   <span class="font-mono text-xs leading-relaxed">${row.b}</span>
                 </div>
               </td>
-              <td class="hidden px-4 py-3 align-top font-mono text-xs text-slate-500 dark:text-slate-400 lg:table-cell">${row.ref}</td>
+              <td class="px-4 py-3 align-top">
+                <blockquote class="border-l-4 border-amber-500 bg-amber-50/60 px-3 py-2 text-xs leading-relaxed text-slate-700 dark:border-amber-400 dark:bg-amber-950/30 dark:text-slate-200">
+                  ${row.consequence}
+                </blockquote>
+              </td>
             </tr>`
         ).join("");
+      }
+
+      // ============================================================
+      // Hybrid Scenario data (Section 5)
+      // 3-column comparison: Config A / Hybrid / Config B
+      // ============================================================
+      const HYBRID_ROWS = [
+        {
+          aspect: "EC2 配置",
+          a: "Public Subnet",
+          h: "Public Subnet (依然)",
+          b: "App Private Subnet",
+          aTone: "red", hTone: "amber", bTone: "emerald",
+        },
+        {
+          aspect: "Public IP",
+          a: "あり",
+          h: "あり (依然)",
+          b: "なし",
+          aTone: "red", hTone: "amber", bTone: "emerald",
+        },
+        {
+          aspect: "ALB 前段",
+          a: "なし",
+          h: "あり",
+          b: "あり",
+          aTone: "red", hTone: "emerald", bTone: "emerald",
+        },
+        {
+          aspect: "22 (SSH) ポートスキャン",
+          a: "見える",
+          h: "依然見える (Public IP がある限り L3 到達可能性)",
+          b: "見えない",
+          aTone: "red", hTone: "red", bTone: "emerald",
+        },
+        {
+          aspect: "80 への WAF 介在",
+          a: "不可",
+          h: "可能",
+          b: "可能",
+          aTone: "red", hTone: "emerald", bTone: "emerald",
+        },
+        {
+          aspect: "EC2 IP の Shodan / Censys インデックス",
+          a: "される",
+          h: "される (依然)",
+          b: "されない",
+          aTone: "red", hTone: "red", bTone: "emerald",
+        },
+        {
+          aspect: "SSRF / IMDS",
+          a: "成功",
+          h: "成功",
+          b: "成功 (アプリ層の問題)",
+          aTone: "red", hTone: "red", bTone: "red",
+        },
+        {
+          aspect: "DB 直接接続",
+          a: "不可 (DB SG で防御)",
+          h: "不可",
+          b: "不可",
+          aTone: "emerald", hTone: "emerald", bTone: "emerald",
+        },
+      ];
+
+      const HYBRID_TONE = {
+        red: "bg-red-50 text-red-800 dark:bg-red-950/40 dark:text-red-200",
+        amber: "bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200",
+        emerald: "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200",
+      };
+
+      function renderHybridScenario() {
+        const tbody = document.getElementById("hybrid-tbody");
+        if (!tbody) return;
+        tbody.innerHTML = HYBRID_ROWS.map((row, i) => `
+          <tr class="${i % 2 === 0 ? "bg-white dark:bg-slate-800/40" : "bg-slate-50/60 dark:bg-slate-800/20"}">
+            <th scope="row" class="px-4 py-3 text-left align-top font-semibold text-slate-800 dark:text-slate-100">${row.aspect}</th>
+            <td class="px-4 py-3 align-top">
+              <span class="inline-block rounded-md px-2 py-1 font-mono text-xs leading-relaxed ${HYBRID_TONE[row.aTone]}">${row.a}</span>
+            </td>
+            <td class="px-4 py-3 align-top">
+              <span class="inline-block rounded-md px-2 py-1 font-mono text-xs leading-relaxed ${HYBRID_TONE[row.hTone]}">${row.h}</span>
+            </td>
+            <td class="px-4 py-3 align-top">
+              <span class="inline-block rounded-md px-2 py-1 font-mono text-xs leading-relaxed ${HYBRID_TONE[row.bTone]}">${row.b}</span>
+            </td>
+          </tr>`).join("");
+      }
+
+      // ============================================================
+      // Defense Matrix data (Section 9)
+      // Cells: "yes" (主要対策), "partial" (条件付き), "na" (扱わない)
+      // ============================================================
+      const DEFENSE_LAYERS = [
+        { key: "private", label: "Private 配置" },
+        { key: "alb", label: "ALB 介在" },
+        { key: "imdsv2", label: "IMDSv2 強制" },
+        { key: "iam", label: "Least-Priv IAM" },
+        { key: "waf", label: "AWS WAF" },
+        { key: "egress", label: "Egress Filter" },
+      ];
+
+      const DEFENSE_ATTACKS = [
+        {
+          name: "Port scan (22, 5432 等)",
+          cells: { private: "yes", alb: "partial", imdsv2: "na", iam: "na", waf: "na", egress: "na" },
+          note: "ALB は 80 のみ ALB 経由化、他は SG 任せ",
+        },
+        {
+          name: "SSH brute-force",
+          cells: { private: "yes", alb: "yes", imdsv2: "na", iam: "na", waf: "na", egress: "na" },
+          note: "ALB は L4/SSH を後段に流さない",
+        },
+        {
+          name: "HTTP 脆弱性 (CVE / SQLi / XSS)",
+          cells: { private: "na", alb: "partial", imdsv2: "na", iam: "na", waf: "yes", egress: "na" },
+          note: "ALB は経路制限のみ。中身は WAF が本筋",
+        },
+        {
+          name: "SSRF → IMDS 認証情報盗難",
+          cells: { private: "na", alb: "na", imdsv2: "yes", iam: "partial", waf: "partial", egress: "na" },
+          note: "IMDSv2 強制が直撃、IAM は盗難後のスコープ縮小に効く",
+        },
+        {
+          name: "盗難 IAM 認証情報の AWS API 悪用",
+          cells: { private: "na", alb: "na", imdsv2: "na", iam: "yes", waf: "na", egress: "na" },
+          note: "aws:SourceVpc / SCP / 最小権限",
+        },
+        {
+          name: "Outbound C2 通信",
+          cells: { private: "na", alb: "na", imdsv2: "na", iam: "na", waf: "na", egress: "yes" },
+          note: "NW Firewall + DNS Firewall",
+        },
+        {
+          name: "データ持ち出し (S3 → 外部)",
+          cells: { private: "na", alb: "na", imdsv2: "na", iam: "partial", waf: "na", egress: "yes" },
+          note: "IAM は S3 GET 権限の制約に部分効果",
+        },
+        {
+          name: "内部横展開 (EC2 → 他 EC2)",
+          cells: { private: "partial", alb: "na", imdsv2: "na", iam: "partial", waf: "na", egress: "na" },
+          note: "Subnet 跨ぎは塞ぐが同一 SG 内の lateral は通る",
+        },
+        {
+          name: "ALB 経由の Host header / method 改竄",
+          cells: { private: "na", alb: "partial", imdsv2: "na", iam: "na", waf: "yes", egress: "na" },
+          note: "ALB の listener rule 設定で部分対応、本筋は WAF",
+        },
+      ];
+
+      const DEFENSE_CELL_STYLE = {
+        yes:     { label: "効く", icon: "check-circle-2", bg: "bg-emerald-100 dark:bg-emerald-900/60", text: "text-emerald-800 dark:text-emerald-100" },
+        partial: { label: "部分的", icon: "circle-dashed",  bg: "bg-amber-100 dark:bg-amber-900/60",   text: "text-amber-800 dark:text-amber-100" },
+        na:      { label: "—",     icon: "minus",           bg: "bg-slate-100 dark:bg-slate-800/60",   text: "text-slate-500 dark:text-slate-400" },
+      };
+
+      function renderDefenseMatrix() {
+        const headerRow = document.getElementById("defense-matrix-header");
+        const tbody = document.getElementById("defense-matrix-tbody");
+        if (!headerRow || !tbody) return;
+
+        headerRow.innerHTML = `
+          <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">攻撃ベクトル</th>
+          ${DEFENSE_LAYERS.map((l) => `
+            <th scope="col" class="px-3 py-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">${l.label}</th>
+          `).join("")}`;
+
+        tbody.innerHTML = DEFENSE_ATTACKS.map((att, i) => {
+          const cells = DEFENSE_LAYERS.map((l) => {
+            const verdict = att.cells[l.key] || "na";
+            const s = DEFENSE_CELL_STYLE[verdict];
+            return `
+              <td class="px-3 py-3 text-center align-middle">
+                <span class="inline-flex w-full items-center justify-center gap-1 rounded-md ${s.bg} ${s.text} px-2 py-1.5 text-xs font-semibold" aria-label="${l.label}: ${s.label}">
+                  <i data-lucide="${s.icon}" class="h-3.5 w-3.5" aria-hidden="true"></i>
+                  <span>${s.label}</span>
+                </span>
+              </td>`;
+          }).join("");
+          return `
+            <tr class="${i % 2 === 0 ? "bg-white dark:bg-slate-800/40" : "bg-slate-50/60 dark:bg-slate-800/20"}">
+              <th scope="row" class="px-4 py-3 text-left align-middle">
+                <p class="font-semibold text-slate-800 dark:text-slate-100">${att.name}</p>
+                <p class="mt-0.5 text-xs leading-snug text-slate-500 dark:text-slate-400">${att.note}</p>
+              </th>
+              ${cells}
+            </tr>`;
+        }).join("");
       }
 
       // ============================================================
@@ -1686,7 +1949,8 @@ def fetch():
         renderHeatmap();
         renderHeatmapSummary();
         renderLayerCards();
-        renderCostBars();
+        renderHybridScenario();
+        renderDefenseMatrix();
         if (window.Prism) Prism.highlightAll();
 
         // Lucide icons
