@@ -811,7 +811,70 @@ def fetch():
               </div>
             </div>
           </section>
-          <section id="section-heatmap"></section>
+          <!-- ===== Section 6 — Attack Result Heatmap ===== -->
+          <section id="section-heatmap" class="mt-16 scroll-mt-20">
+            <header class="mb-6">
+              <p
+                class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
+              >
+                Section 6 / Heatmap
+              </p>
+              <h2
+                class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
+              >
+                Attack Result Heatmap (20 × 2)
+              </h2>
+              <p
+                class="mt-2 max-w-prose text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+              >
+                <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">scripts/compare_results.sh</code>
+                の判定ロジックと
+                <code class="rounded bg-slate-100 px-1 py-0.5 text-xs dark:bg-slate-800">architecture.md</code>
+                の Attack Surface Matrix
+                から導出した、攻撃シナリオごとの結果一覧。色だけでなくアイコンとテキストでも結果を示します。
+              </p>
+            </header>
+
+            <!-- Summary tiles -->
+            <div id="heatmap-summary" class="mb-6 grid gap-3 sm:grid-cols-4"></div>
+
+            <!-- Legend -->
+            <div class="mb-4 flex flex-wrap items-center gap-3 text-xs">
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-red-700 dark:bg-red-950/40 dark:text-red-200">
+                <i data-lucide="x-circle" class="h-3.5 w-3.5" aria-hidden="true"></i>
+                VULNERABLE
+              </span>
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-1 text-red-900 dark:bg-red-900/60 dark:text-red-100">
+                <i data-lucide="alert-octagon" class="h-3.5 w-3.5" aria-hidden="true"></i>
+                CRITICAL
+              </span>
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-200">
+                <i data-lucide="check-circle-2" class="h-3.5 w-3.5" aria-hidden="true"></i>
+                BLOCKED
+              </span>
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                <i data-lucide="minus-circle" class="h-3.5 w-3.5" aria-hidden="true"></i>
+                N/A
+              </span>
+            </div>
+
+            <!-- Heatmap table -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800/60">
+              <table class="w-full min-w-[680px] divide-y divide-slate-200 text-sm dark:divide-slate-700">
+                <caption class="sr-only">20 個の攻撃シナリオに対する Config A / Config B の結果ヒートマップ</caption>
+                <thead class="bg-slate-50 dark:bg-slate-800/80">
+                  <tr>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">#</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Attack scenario</th>
+                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-red-700 dark:text-red-300">Config A</th>
+                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">Config B</th>
+                    <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Layer / Improvement</th>
+                  </tr>
+                </thead>
+                <tbody id="heatmap-tbody" class="divide-y divide-slate-100 dark:divide-slate-700/60"></tbody>
+              </table>
+            </div>
+          </section>
           <section id="section-layer-analysis"></section>
           <section id="section-cost"></section>
           <section id="section-resource-matrix"></section>
@@ -898,6 +961,131 @@ def fetch():
           { rootMargin: "-30% 0px -60% 0px", threshold: 0 }
         );
         sections.forEach((s) => observer.observe(s));
+      }
+
+      // ============================================================
+      // Attack Heatmap data (20 scenarios)
+      // ----------------------------------------------------------------
+      // Verdict source:
+      //   - architecture.md → "Attack Surface Matrix"
+      //   - scripts/compare_results.sh → "Detailed Analysis" + verdict logic
+      // Layers: network | application | aws-api | vpc-internal | alb | outbound
+      // ============================================================
+      const ATTACKS = [
+        { id: "00", name: "Reconnaissance",         file: "scripts/00_reconnaissance.sh",         a: "VULNERABLE", b: "VULNERABLE", layer: "application",   note: "DNS / OSINT は Config に依存しない" },
+        { id: "01", name: "Port Scan",              file: "scripts/01_portscan.sh",               a: "VULNERABLE", b: "BLOCKED",    layer: "network",       note: "EC2 Public IP が消えたため到達不可" },
+        { id: "02", name: "SSH Probe",              file: "scripts/02_ssh_probe.sh",              a: "VULNERABLE", b: "BLOCKED",    layer: "network",       note: "ALB は SSH を forward しない" },
+        { id: "03", name: "Web Scan",               file: "scripts/03_web_scan.sh",               a: "VULNERABLE", b: "VULNERABLE", layer: "application",   note: "ALB 経由で HTTP は到達" },
+        { id: "04", name: "SSRF / IMDS",            file: "scripts/04_ssrf_metadata.sh",          a: "CRITICAL",   b: "CRITICAL",   layer: "application",   note: "/fetch + IMDSv1 で credentials 漏洩" },
+        { id: "05", name: "DB Direct Connection",   file: "scripts/05_db_probe.sh",               a: "BLOCKED",    b: "BLOCKED",    layer: "network",       note: "DB は元々 Private subnet" },
+        { id: "06", name: "Outbound Communication", file: "scripts/06_outbound_check.sh",         a: "VULNERABLE", b: "VULNERABLE", layer: "outbound",      note: "NAT GW は egress を絞らない" },
+        { id: "07", name: "Full Kill Chain",        file: "scripts/07_full_kill_chain.sh",        a: "CRITICAL",   b: "VULNERABLE", layer: "application",   note: "入口は塞がれたが SSRF→IMDS→IAM が通る" },
+        { id: "08", name: "Post-Exploitation",      file: "scripts/08_post_exploitation.sh",      a: "VULNERABLE", b: "VULNERABLE", layer: "aws-api",       note: "盗まれた IAM credentials は VPC 境界を超える" },
+        { id: "09", name: "Internal Recon",         file: "scripts/09_internal_recon.sh",         a: "VULNERABLE", b: "VULNERABLE", layer: "vpc-internal",  note: "VPC 内部は両 Config 同条件" },
+        { id: "10", name: "SSRF Internal Recon",    file: "scripts/10_ssrf_internal_recon.sh",    a: "VULNERABLE", b: "VULNERABLE", layer: "application",   note: "SSRF からの内部探索は両方成立" },
+        { id: "11", name: "IAM Privilege Escalation", file: "scripts/11_iam_privilege_escalation.sh", a: "CRITICAL", b: "CRITICAL", layer: "aws-api",      note: "AWS API 層は VPC topology に非依存" },
+        { id: "12", name: "ALB-Specific Attacks",   file: "scripts/12_alb_attacks.sh",            a: "N/A",        b: "VULNERABLE", layer: "alb",           note: "ALB を導入した Config B のみ存在する新攻撃面" },
+        { id: "13", name: "C2 Channel Test",        file: "scripts/13_outbound_c2.sh",            a: "VULNERABLE", b: "VULNERABLE", layer: "outbound",      note: "egress 制御が無く C2 channel 樹立可" },
+        { id: "14", name: "SSRF → RDS Attack",      file: "scripts/14_ssrf_to_rds.sh",            a: "CRITICAL",   b: "CRITICAL",   layer: "application",   note: "SSRF 経由の RDS は SG 上 App→DB 許可で通る" },
+        { id: "15", name: "IAM Blast Radius",       file: "scripts/15_iam_blast_radius.sh",       a: "CRITICAL",   b: "CRITICAL",   layer: "aws-api",       note: "ReadOnly 4 種の影響範囲が同一" },
+        { id: "16", name: "Data Exfiltration",      file: "scripts/16_data_exfiltration.sh",      a: "VULNERABLE", b: "VULNERABLE", layer: "outbound",      note: "S3 endpoint + NAT GW で外部送信可能" },
+        { id: "17", name: "Persistence Mechanisms", file: "scripts/17_persistence_check.sh",      a: "VULNERABLE", b: "VULNERABLE", layer: "aws-api",       note: "IAM key / SSM / cron を介した persistence" },
+        { id: "18", name: "Detection Evasion",      file: "scripts/18_detection_evasion.sh",      a: "VULNERABLE", b: "VULNERABLE", layer: "vpc-internal",  note: "Flow Logs だけでは ALB 通過後の attribution が失われる" },
+        { id: "19", name: "Quantitative Metrics",   file: "scripts/19_quantitative_metrics.sh",   a: "VULNERABLE", b: "VULNERABLE", layer: "aws-api",       note: "資産棚卸し系の数値はほぼ同一" },
+      ];
+
+      const VERDICT_STYLES = {
+        VULNERABLE: { bg: "bg-red-50 dark:bg-red-950/40", text: "text-red-700 dark:text-red-200", icon: "x-circle", label: "VULN" },
+        CRITICAL:   { bg: "bg-red-100 dark:bg-red-900/60", text: "text-red-900 dark:text-red-100", icon: "alert-octagon", label: "CRIT" },
+        BLOCKED:    { bg: "bg-emerald-50 dark:bg-emerald-950/40", text: "text-emerald-700 dark:text-emerald-200", icon: "check-circle-2", label: "BLOCK" },
+        "N/A":      { bg: "bg-slate-100 dark:bg-slate-800/60", text: "text-slate-600 dark:text-slate-300", icon: "minus-circle", label: "N/A" },
+      };
+
+      function classifyImprovement(a, b) {
+        if ((a === "VULNERABLE" || a === "CRITICAL") && b === "BLOCKED") {
+          return { label: "Improved", class: "text-emerald-700 dark:text-emerald-300", icon: "trending-down" };
+        }
+        if (a === "CRITICAL" && b === "VULNERABLE") {
+          return { label: "Partially", class: "text-amber-700 dark:text-amber-300", icon: "minus" };
+        }
+        if (a === "N/A" && b !== "N/A") {
+          return { label: "New surface", class: "text-amber-700 dark:text-amber-300", icon: "alert-triangle" };
+        }
+        if (a === "BLOCKED" && b === "BLOCKED") {
+          return { label: "Both blocked", class: "text-emerald-700 dark:text-emerald-300", icon: "shield-check" };
+        }
+        return { label: "Not improved", class: "text-red-600 dark:text-red-300", icon: "alert-circle" };
+      }
+
+      const LAYER_LABEL = {
+        network: "Network Boundary",
+        application: "Application",
+        "aws-api": "AWS API / IAM",
+        "vpc-internal": "VPC Internal",
+        alb: "ALB Proxy",
+        outbound: "Outbound",
+      };
+
+      function verdictPill(verdict) {
+        const s = VERDICT_STYLES[verdict];
+        return `
+          <span class="inline-flex w-full items-center justify-center gap-1.5 rounded-md ${s.bg} ${s.text} px-2 py-1.5 text-xs font-semibold" aria-label="${verdict}">
+            <i data-lucide="${s.icon}" class="h-3.5 w-3.5" aria-hidden="true"></i>
+            <span>${s.label}</span>
+          </span>`;
+      }
+
+      function renderHeatmap() {
+        const tbody = document.getElementById("heatmap-tbody");
+        if (!tbody) return;
+        tbody.innerHTML = ATTACKS.map((att) => {
+          const imp = classifyImprovement(att.a, att.b);
+          return `
+            <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/30">
+              <td class="px-4 py-3 align-top font-mono text-xs text-slate-500 dark:text-slate-400">${att.id}</td>
+              <td class="px-4 py-3 align-top">
+                <p class="font-semibold text-slate-800 dark:text-slate-100">${att.name}</p>
+                <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">${att.note}</p>
+                <p class="mt-1 font-mono text-[11px] text-slate-400 dark:text-slate-500">${att.file}</p>
+              </td>
+              <td class="px-3 py-3 align-top">${verdictPill(att.a)}</td>
+              <td class="px-3 py-3 align-top">${verdictPill(att.b)}</td>
+              <td class="px-4 py-3 align-top">
+                <p class="text-xs font-medium text-slate-700 dark:text-slate-300">${LAYER_LABEL[att.layer] || att.layer}</p>
+                <span class="mt-1 inline-flex items-center gap-1 text-xs font-semibold ${imp.class}">
+                  <i data-lucide="${imp.icon}" class="h-3.5 w-3.5" aria-hidden="true"></i>
+                  ${imp.label}
+                </span>
+              </td>
+            </tr>`;
+        }).join("");
+      }
+
+      function renderHeatmapSummary() {
+        const wrap = document.getElementById("heatmap-summary");
+        if (!wrap) return;
+        let aBlocked = 0, bBlocked = 0, improved = 0, stillVuln = 0, newSurface = 0;
+        ATTACKS.forEach((a) => {
+          if (a.a === "BLOCKED") aBlocked++;
+          if (a.b === "BLOCKED") bBlocked++;
+          if ((a.a === "VULNERABLE" || a.a === "CRITICAL") && a.b === "BLOCKED") improved++;
+          if (a.b === "VULNERABLE" || a.b === "CRITICAL") stillVuln++;
+          if (a.a === "N/A" && a.b !== "N/A") newSurface++;
+        });
+        const tiles = [
+          { label: "Config A blocked", value: `${aBlocked} / 20`, accent: "text-red-700 dark:text-red-300", icon: "globe-2" },
+          { label: "Config B blocked", value: `${bBlocked} / 20`, accent: "text-emerald-700 dark:text-emerald-300", icon: "lock" },
+          { label: "Improved A → B", value: `+${improved}`, accent: "text-indigo-700 dark:text-indigo-300", icon: "trending-down" },
+          { label: "Still vulnerable in B", value: `${stillVuln}`, accent: "text-amber-700 dark:text-amber-300", icon: "alert-triangle" },
+        ];
+        wrap.innerHTML = tiles.map((t) => `
+          <div class="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/60">
+            <div class="flex items-center gap-2 text-xs font-medium uppercase tracking-wider ${t.accent}">
+              <i data-lucide="${t.icon}" class="h-4 w-4" aria-hidden="true"></i>
+              ${t.label}
+            </div>
+            <p class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">${t.value}</p>
+          </div>`).join("");
       }
 
       // ============================================================
@@ -1049,6 +1237,8 @@ def fetch():
         renderTOC();
         setupConfigToggle();
         renderNetworkDiff();
+        renderHeatmap();
+        renderHeatmapSummary();
         if (window.Prism) Prism.highlightAll();
 
         // Lucide icons
