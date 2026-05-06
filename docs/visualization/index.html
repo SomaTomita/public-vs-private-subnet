@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ja" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="AWS Public Subnet と Private Subnet の比較ラボ — 同じアプリ、同じ攻撃、異なる結果を 1 ページで可視化"
+    />
+    <title>Public vs Private Subnet — AWS Security Lab Visualization</title>
+
+    <!-- Google Fonts: Inter (UI) + JetBrains Mono (code) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+              mono: ["JetBrains Mono", "ui-monospace", "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Prism.js for Python syntax highlighting -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      html {
+        font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+      }
+      code,
+      pre,
+      .font-mono {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+      }
+      /* Reduced motion */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.001ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+      /* Anchor offset for sticky nav */
+      :target {
+        scroll-margin-top: 5rem;
+      }
+      /* Custom scrollbar minimal */
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(100, 116, 139, 0.4);
+        border-radius: 5px;
+      }
+      .dark ::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.3);
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 text-slate-700 antialiased dark:bg-slate-900 dark:text-slate-200"
+  >
+    <a
+      href="#section-hero"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-indigo-600 focus:px-4 focus:py-2 focus:text-white"
+      >コンテンツへスキップ</a
+    >
+
+    <!-- ===== Top bar ===== -->
+    <header
+      class="sticky top-0 z-40 border-b border-slate-200 bg-white/85 backdrop-blur dark:border-slate-800 dark:bg-slate-900/85"
+    >
+      <div
+        class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6"
+      >
+        <a
+          href="#section-hero"
+          class="flex items-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded"
+        >
+          <span
+            class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-indigo-500 to-purple-600 text-white"
+            aria-hidden="true"
+          >
+            <i data-lucide="shield-check" class="h-5 w-5"></i>
+          </span>
+          <span class="font-semibold text-slate-900 dark:text-white"
+            >Public vs Private Subnet</span
+          >
+          <span
+            class="ml-1 hidden rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300 sm:inline"
+            >AWS Security Lab</span
+          >
+        </a>
+        <div class="flex items-center gap-2">
+          <a
+            href="https://github.com/SomaTomita/public-vs-private-subnet"
+            class="hidden cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 sm:inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+            target="_blank"
+            rel="noopener"
+          >
+            <i data-lucide="github" class="h-4 w-4" aria-hidden="true"></i>
+            <span>Repository</span>
+          </a>
+          <button
+            id="dark-mode-toggle"
+            type="button"
+            class="cursor-pointer rounded-md border border-slate-200 bg-white p-2 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+            aria-label="ダーク/ライトモード切替"
+          >
+            <i
+              data-lucide="moon"
+              class="hidden h-5 w-5 dark:inline-block"
+              aria-hidden="true"
+            ></i>
+            <i
+              data-lucide="sun"
+              class="inline-block h-5 w-5 dark:hidden"
+              aria-hidden="true"
+            ></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="mx-auto max-w-7xl px-4 md:px-6">
+      <div class="md:flex md:gap-8">
+        <!-- ===== Sticky Side Nav ===== -->
+        <aside class="hidden md:block md:w-56 md:flex-shrink-0">
+          <nav
+            class="sticky top-20 mt-8 max-h-[calc(100vh-6rem)] overflow-y-auto pb-8"
+            aria-label="目次"
+          >
+            <p
+              class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+            >
+              目次
+            </p>
+            <ul id="toc" class="space-y-1 text-sm"></ul>
+          </nav>
+        </aside>
+
+        <!-- ===== Main content ===== -->
+        <main class="min-w-0 flex-1 py-6 md:py-10">
+          <!-- Sections inserted below by Tasks 2-10 -->
+          <section id="section-hero"></section>
+          <section id="section-toggle"></section>
+          <section id="section-topology"></section>
+          <section id="section-network-diff"></section>
+          <section id="section-app-layer"></section>
+          <section id="section-heatmap"></section>
+          <section id="section-layer-analysis"></section>
+          <section id="section-cost"></section>
+          <section id="section-resource-matrix"></section>
+          <section id="section-conclusion"></section>
+        </main>
+      </div>
+    </div>
+
+    <footer id="section-footer"></footer>
+
+    <!-- Lucide icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Prism.js core + python -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+
+    <script>
+      // ============================================================
+      // Initial setup: dark mode + lucide icons
+      // ============================================================
+      (function initDarkMode() {
+        const stored = localStorage.getItem("color-mode");
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+        const isDark = stored ? stored === "dark" : prefersDark;
+        document.documentElement.classList.toggle("dark", isDark);
+      })();
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // Lucide icons
+        if (window.lucide) lucide.createIcons();
+
+        // Dark mode toggle
+        const toggleBtn = document.getElementById("dark-mode-toggle");
+        toggleBtn.addEventListener("click", () => {
+          const isDark = document.documentElement.classList.toggle("dark");
+          localStorage.setItem("color-mode", isDark ? "dark" : "light");
+          if (window.lucide) lucide.createIcons();
+        });
+      });
+    </script>
+  </body>
+</html>

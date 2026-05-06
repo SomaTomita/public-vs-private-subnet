@@ -27,4 +27,5 @@ docs/*
 !docs/diagram/
 !docs/fundamentals/
 !docs/plans/.keep
+!docs/visualization/
 tasks/*
