@@ -875,7 +875,27 @@ def fetch():
               </table>
             </div>
           </section>
-          <section id="section-layer-analysis"></section>
+          <!-- ===== Section 7 — Layer-by-Layer Analysis ===== -->
+          <section id="section-layer-analysis" class="mt-16 scroll-mt-20">
+            <header class="mb-6">
+              <p
+                class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
+              >
+                Section 7 / Layers
+              </p>
+              <h2
+                class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
+              >
+                Layer-by-Layer Analysis
+              </h2>
+              <p
+                class="mt-2 max-w-prose text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+              >
+                Private Subnet がどの層に効き、どの層では役に立たないのかをレイヤーで分解します。
+              </p>
+            </header>
+            <div id="layer-cards" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
+          </section>
           <section id="section-cost"></section>
           <section id="section-resource-matrix"></section>
           <section id="section-conclusion"></section>
@@ -961,6 +981,113 @@ def fetch():
           { rootMargin: "-30% 0px -60% 0px", threshold: 0 }
         );
         sections.forEach((s) => observer.observe(s));
+      }
+
+      // ============================================================
+      // Layer-by-Layer Analysis cards
+      // ============================================================
+      const LAYER_CARDS = [
+        {
+          title: "Network Boundary",
+          status: "IMPROVED",
+          tone: "emerald",
+          icon: "shield-check",
+          summary:
+            "Private + ALB により外部到達面が大幅に縮小。Port scan / SSH / Direct DB が遮断される。",
+          scripts: ["scripts/01_portscan.sh", "scripts/02_ssh_probe.sh", "scripts/05_db_probe.sh"],
+        },
+        {
+          title: "Application Layer",
+          status: "NOT MITIGATED",
+          tone: "red",
+          icon: "alert-triangle",
+          summary:
+            "ALB は HTTP を素通し。SSRF, web vuln, /fetch endpoint は両 Config で成立する。",
+          scripts: ["scripts/03_web_scan.sh", "scripts/04_ssrf_metadata.sh", "scripts/10_ssrf_internal_recon.sh"],
+        },
+        {
+          title: "AWS API / IAM Layer",
+          status: "NOT MITIGATED",
+          tone: "red",
+          icon: "key-round",
+          summary:
+            "盗まれた IAM credentials は AWS control plane で動くため VPC 境界を超える。SCP + aws:SourceVpc が必要。",
+          scripts: ["scripts/11_iam_privilege_escalation.sh", "scripts/15_iam_blast_radius.sh", "scripts/08_post_exploitation.sh"],
+        },
+        {
+          title: "ALB Proxy Layer",
+          status: "NEW SURFACE",
+          tone: "amber",
+          icon: "layers",
+          summary:
+            "Config B 限定で生まれる新しい攻撃面。Host header injection, HTTP method tampering 等。WAF + HTTPS 強制で対処。",
+          scripts: ["scripts/12_alb_attacks.sh"],
+        },
+        {
+          title: "Outbound",
+          status: "NOT MITIGATED",
+          tone: "red",
+          icon: "arrow-up-right",
+          summary:
+            "NAT GW は egress を絞らない。C2 channel / data exfiltration を防ぐには Network Firewall + DNS Firewall。",
+          scripts: ["scripts/06_outbound_check.sh", "scripts/13_outbound_c2.sh", "scripts/16_data_exfiltration.sh"],
+        },
+        {
+          title: "VPC Internal Network",
+          status: "NOT MITIGATED",
+          tone: "red",
+          icon: "network",
+          summary:
+            "VPC 内部は両 Config 同条件。micro-segmentation と SG ベースの厳密な隔離が必要。",
+          scripts: ["scripts/09_internal_recon.sh", "scripts/14_ssrf_to_rds.sh", "scripts/18_detection_evasion.sh"],
+        },
+      ];
+
+      const TONE_STYLES = {
+        emerald: {
+          border: "border-emerald-300 dark:border-emerald-700/60",
+          bg: "bg-emerald-50/70 dark:bg-emerald-950/30",
+          icon: "text-emerald-600 dark:text-emerald-400",
+          badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-200",
+        },
+        red: {
+          border: "border-red-300 dark:border-red-700/60",
+          bg: "bg-red-50/70 dark:bg-red-950/30",
+          icon: "text-red-600 dark:text-red-400",
+          badge: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-200",
+        },
+        amber: {
+          border: "border-amber-300 dark:border-amber-700/60",
+          bg: "bg-amber-50/70 dark:bg-amber-950/30",
+          icon: "text-amber-600 dark:text-amber-400",
+          badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-200",
+        },
+      };
+
+      function renderLayerCards() {
+        const wrap = document.getElementById("layer-cards");
+        if (!wrap) return;
+        wrap.innerHTML = LAYER_CARDS.map((c) => {
+          const t = TONE_STYLES[c.tone];
+          const scripts = c.scripts
+            .map(
+              (s) =>
+                `<li class="font-mono text-[11px] text-slate-600 dark:text-slate-400">${s}</li>`
+            )
+            .join("");
+          return `
+            <article class="rounded-xl border ${t.border} ${t.bg} p-5">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="${c.icon}" class="h-5 w-5 ${t.icon}" aria-hidden="true"></i>
+                  <h3 class="text-base font-bold text-slate-900 dark:text-white">${c.title}</h3>
+                </div>
+                <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold ${t.badge}">${c.status}</span>
+              </div>
+              <p class="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">${c.summary}</p>
+              <ul class="mt-3 space-y-1 border-t border-slate-200 pt-3 dark:border-slate-700">${scripts}</ul>
+            </article>`;
+        }).join("");
       }
 
       // ============================================================
@@ -1239,6 +1366,7 @@ def fetch():
         renderNetworkDiff();
         renderHeatmap();
         renderHeatmapSummary();
+        renderLayerCards();
         if (window.Prism) Prism.highlightAll();
 
         // Lucide icons
