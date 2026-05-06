@@ -701,7 +701,116 @@
               </table>
             </div>
           </section>
-          <section id="section-app-layer"></section>
+          <!-- ===== Section 5 — Application Layer ===== -->
+          <section id="section-app-layer" class="mt-16 scroll-mt-20">
+            <header class="mb-6">
+              <p
+                class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
+              >
+                Section 5 / Application
+              </p>
+              <h2
+                class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
+              >
+                アプリケーション層は完全に同一
+              </h2>
+              <p
+                class="mt-2 max-w-prose text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+              >
+                Flask app は user_data で両 Config に同じバイナリが展開されます。
+                <strong>違うのは入口だけ。出口の被害は?</strong> という問いの答えを、
+                次の Section 6 のヒートマップで確認します。
+              </p>
+            </header>
+
+            <!-- Endpoint cards -->
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <article class="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/60">
+                <div class="mb-2 flex items-center justify-between">
+                  <span class="font-mono text-sm font-semibold text-slate-900 dark:text-white">/</span>
+                  <i data-lucide="home" class="h-4 w-4 text-slate-400" aria-hidden="true"></i>
+                </div>
+                <p class="text-xs text-slate-600 dark:text-slate-400">Index ページ。エンドポイント一覧表示</p>
+              </article>
+              <article class="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/60">
+                <div class="mb-2 flex items-center justify-between">
+                  <span class="font-mono text-sm font-semibold text-slate-900 dark:text-white">/health</span>
+                  <i data-lucide="activity" class="h-4 w-4 text-emerald-500" aria-hidden="true"></i>
+                </div>
+                <p class="text-xs text-slate-600 dark:text-slate-400">ALB Target Group の Health check 用 (200 OK)</p>
+              </article>
+              <article class="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800/60">
+                <div class="mb-2 flex items-center justify-between">
+                  <span class="font-mono text-sm font-semibold text-slate-900 dark:text-white">/info</span>
+                  <i data-lucide="info" class="h-4 w-4 text-indigo-500" aria-hidden="true"></i>
+                </div>
+                <p class="text-xs text-slate-600 dark:text-slate-400">Hostname / Private IP を返す情報露出</p>
+              </article>
+              <article class="rounded-xl border-2 border-red-300 bg-red-50 p-4 dark:border-red-700 dark:bg-red-950/40">
+                <div class="mb-2 flex items-center justify-between">
+                  <span class="font-mono text-sm font-semibold text-red-800 dark:text-red-200">/fetch?url=...</span>
+                  <i data-lucide="alert-triangle" class="h-4 w-4 text-red-500" aria-hidden="true"></i>
+                </div>
+                <p class="text-xs font-semibold text-red-700 dark:text-red-300">SSRF 脆弱性 — 任意の URL を取得</p>
+              </article>
+            </div>
+
+            <!-- Code snippet -->
+            <div class="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-slate-900 dark:border-slate-700">
+              <div class="flex items-center justify-between border-b border-slate-700 bg-slate-800 px-4 py-2 text-xs">
+                <span class="font-mono text-slate-300">vulnerable-app/app.py:50-60</span>
+                <span class="rounded-full bg-red-900/60 px-2 py-0.5 font-medium text-red-200">SSRF vulnerable</span>
+              </div>
+<pre class="!m-0 !rounded-none p-4 text-sm leading-relaxed"><code class="language-python">@app.route("/fetch")
+def fetch():
+    """SSRF VULNERABLE ENDPOINT - FOR EDUCATION ONLY"""
+    url = request.args.get("url", "")
+    if not url:
+        return "Usage: /fetch?url=http://example.com", 400
+    try:
+        resp = requests.get(url, timeout=5)
+        return resp.text
+    except Exception as e:
+        return str(e), 500</code></pre>
+            </div>
+
+            <!-- IMDS / IAM warning -->
+            <div class="mt-6 grid gap-4 lg:grid-cols-2">
+              <div class="rounded-xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/30">
+                <div class="flex items-start gap-3">
+                  <i data-lucide="alert-octagon" class="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true"></i>
+                  <div>
+                    <h3 class="text-sm font-semibold text-amber-900 dark:text-amber-100">IMDSv1 が有効化されています</h3>
+                    <p class="mt-1 text-xs leading-relaxed text-amber-800 dark:text-amber-200">
+                      <code class="rounded bg-amber-100 px-1 py-0.5 font-mono text-xs dark:bg-amber-900/60">http_tokens = "optional"</code>
+                      により、SSRF だけで EC2 メタデータからクレデンシャルが盗まれます。
+                    </p>
+                    <p class="mt-2 font-mono text-[11px] text-amber-700 dark:text-amber-300">
+                      terraform/ec2.tf:64-67
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="rounded-xl border border-rose-300 bg-rose-50 p-4 dark:border-rose-700 dark:bg-rose-950/30">
+                <div class="flex items-start gap-3">
+                  <i data-lucide="key-round" class="mt-0.5 h-5 w-5 shrink-0 text-rose-600 dark:text-rose-400" aria-hidden="true"></i>
+                  <div>
+                    <h3 class="text-sm font-semibold text-rose-900 dark:text-rose-100">過剰な IAM Role Policy</h3>
+                    <ul class="mt-1 space-y-0.5 text-xs leading-relaxed text-rose-800 dark:text-rose-200">
+                      <li>• AmazonS3ReadOnlyAccess</li>
+                      <li>• AmazonEC2ReadOnlyAccess</li>
+                      <li>• AmazonRDSReadOnlyAccess</li>
+                      <li>• AmazonSSMManagedInstanceCore</li>
+                    </ul>
+                    <p class="mt-2 text-xs leading-relaxed text-rose-700 dark:text-rose-300">
+                      盗まれたクレデンシャルは VPC 境界を超えて AWS API
+                      層で動作するため、Private Subnet では防げません。
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
           <section id="section-heatmap"></section>
           <section id="section-layer-analysis"></section>
           <section id="section-cost"></section>
@@ -940,6 +1049,7 @@
         renderTOC();
         setupConfigToggle();
         renderNetworkDiff();
+        if (window.Prism) Prism.highlightAll();
 
         // Lucide icons
         if (window.lucide) lucide.createIcons();
