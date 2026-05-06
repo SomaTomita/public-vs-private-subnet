@@ -382,7 +382,257 @@
               </div>
             </div>
           </section>
-          <section id="section-topology"></section>
+          <!-- ===== Section 3 — Network Topology ===== -->
+          <section id="section-topology" class="mt-16 scroll-mt-20">
+            <header class="mb-6">
+              <p
+                class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
+              >
+                Section 3 / Topology
+              </p>
+              <h2
+                class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
+              >
+                ネットワークトポロジ
+              </h2>
+              <p
+                class="mt-2 max-w-prose text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+              >
+                左 = Config A (Public Direct)、右 = Config B (Private + ALB)。
+                赤い経路は外部攻撃者の到達経路、緑は信頼経路 / 内部 egress。
+              </p>
+            </header>
+            <div class="grid gap-6 lg:grid-cols-2">
+              <!-- Config A SVG -->
+              <figure
+                class="config-panel rounded-2xl border border-red-200 bg-red-50/40 p-5 dark:border-red-900/50 dark:bg-red-950/20"
+                data-config="public"
+              >
+                <figcaption class="mb-3 flex items-center justify-between">
+                  <span
+                    class="inline-flex items-center gap-2 text-sm font-semibold text-red-700 dark:text-red-300"
+                  >
+                    <i
+                      data-lucide="globe-2"
+                      class="h-4 w-4"
+                      aria-hidden="true"
+                    ></i>
+                    Config A — Public Direct
+                  </span>
+                  <span
+                    class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/40 dark:text-red-200"
+                    >Insecure</span
+                  >
+                </figcaption>
+                <div class="overflow-x-auto">
+                  <svg
+                    viewBox="0 0 600 480"
+                    class="block h-auto w-full"
+                    role="img"
+                    aria-labelledby="topo-a-title topo-a-desc"
+                  >
+                    <title id="topo-a-title">Config A: Public Direct トポロジ図</title>
+                    <desc id="topo-a-desc">
+                      Internet → IGW → Public Subnet 上の EC2 (Public IP 付与) → RDS (Private Subnet)。攻撃者は EC2 へ直接到達できる。
+                    </desc>
+                    <!-- Attacker -->
+                    <g>
+                      <rect x="20" y="200" width="100" height="60" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="2" />
+                      <text x="70" y="225" text-anchor="middle" font-size="13" font-weight="600" fill="#991b1b" font-family="Inter, sans-serif">Attacker</text>
+                      <text x="70" y="245" text-anchor="middle" font-size="11" fill="#7f1d1d" font-family="Inter, sans-serif">Internet</text>
+                    </g>
+                    <!-- Arrow attacker → IGW -->
+                    <line x1="120" y1="230" x2="170" y2="230" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arrow-red-a)" />
+                    <text x="145" y="220" text-anchor="middle" font-size="10" fill="#991b1b" font-family="JetBrains Mono, monospace">tcp/80,22</text>
+                    <!-- IGW -->
+                    <g>
+                      <rect x="170" y="205" width="60" height="50" rx="6" fill="#fff" stroke="#64748b" stroke-width="2" />
+                      <text x="200" y="226" text-anchor="middle" font-size="11" font-weight="600" fill="#334155" font-family="Inter, sans-serif">IGW</text>
+                      <text x="200" y="242" text-anchor="middle" font-size="9" fill="#64748b" font-family="Inter, sans-serif">main</text>
+                    </g>
+                    <line x1="230" y1="230" x2="280" y2="230" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arrow-red-a)" />
+                    <!-- VPC frame -->
+                    <rect x="270" y="40" width="310" height="420" rx="10" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4" />
+                    <text x="285" y="60" font-size="11" font-weight="600" fill="#475569" font-family="Inter, sans-serif">VPC 10.0.0.0/16</text>
+                    <!-- Public Subnet -->
+                    <rect x="285" y="80" width="280" height="220" rx="8" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5" />
+                    <text x="300" y="100" font-size="11" font-weight="600" fill="#b91c1c" font-family="Inter, sans-serif">Public Subnet — 10.0.1.0/24</text>
+                    <!-- EC2 -->
+                    <g>
+                      <rect x="320" y="170" width="170" height="80" rx="8" fill="#fff" stroke="#ef4444" stroke-width="2.5" />
+                      <text x="405" y="195" text-anchor="middle" font-size="13" font-weight="700" fill="#7f1d1d" font-family="Inter, sans-serif">EC2 App Server</text>
+                      <text x="405" y="213" text-anchor="middle" font-size="10" fill="#991b1b" font-family="JetBrains Mono, monospace">Public IP: yes</text>
+                      <text x="405" y="228" text-anchor="middle" font-size="10" fill="#991b1b" font-family="JetBrains Mono, monospace">SG: 80/0.0.0.0/0, 22/my_ip</text>
+                      <text x="405" y="243" text-anchor="middle" font-size="9" fill="#64748b" font-family="JetBrains Mono, monospace">terraform/ec2.tf:49-77</text>
+                    </g>
+                    <!-- DB Subnet -->
+                    <rect x="285" y="320" width="280" height="125" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5" />
+                    <text x="300" y="340" font-size="11" font-weight="600" fill="#475569" font-family="Inter, sans-serif">DB Private Subnet — 10.0.20.0/24</text>
+                    <g>
+                      <rect x="345" y="355" width="160" height="70" rx="8" fill="#fff" stroke="#0ea5e9" stroke-width="2" />
+                      <text x="425" y="378" text-anchor="middle" font-size="12" font-weight="700" fill="#0c4a6e" font-family="Inter, sans-serif">RDS PostgreSQL</text>
+                      <text x="425" y="395" text-anchor="middle" font-size="10" fill="#075985" font-family="JetBrains Mono, monospace">5432 from App SG</text>
+                      <text x="425" y="412" text-anchor="middle" font-size="9" fill="#64748b" font-family="JetBrains Mono, monospace">terraform/rds.tf</text>
+                    </g>
+                    <!-- IGW → EC2 attacker arrow (continues from earlier) -->
+                    <line x1="280" y1="230" x2="320" y2="210" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arrow-red-a)" />
+                    <!-- App → RDS -->
+                    <line x1="405" y1="250" x2="425" y2="355" stroke="#10b981" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow-green-a)" />
+                    <text x="455" y="305" font-size="10" fill="#047857" font-family="JetBrains Mono, monospace">5432</text>
+                    <!-- App → IGW (outbound via Public IP) -->
+                    <path d="M 405 170 Q 250 130 200 205" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow-green-a)" />
+                    <text x="290" y="125" font-size="10" fill="#047857" font-family="JetBrains Mono, monospace">outbound (Public IP)</text>
+                    <!-- arrowheads -->
+                    <defs>
+                      <marker id="arrow-red-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+                      </marker>
+                      <marker id="arrow-green-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
+                      </marker>
+                    </defs>
+                  </svg>
+                </div>
+                <ul class="mt-3 space-y-1 text-xs text-slate-600 dark:text-slate-400">
+                  <li class="flex items-start gap-2">
+                    <i data-lucide="alert-triangle" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-500" aria-hidden="true"></i>
+                    攻撃者は IGW を経由して EC2 に <strong>直接</strong> 到達 (HTTP / SSH)
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <i data-lucide="info" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true"></i>
+                    Outbound は EC2 Public IP 経由 (送信元 IP がインスタンスごとに分散)
+                  </li>
+                </ul>
+              </figure>
+
+              <!-- Config B SVG -->
+              <figure
+                class="config-panel rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 dark:border-emerald-900/50 dark:bg-emerald-950/20"
+                data-config="private"
+              >
+                <figcaption class="mb-3 flex items-center justify-between">
+                  <span
+                    class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300"
+                  >
+                    <i
+                      data-lucide="lock"
+                      class="h-4 w-4"
+                      aria-hidden="true"
+                    ></i>
+                    Config B — Private + ALB
+                  </span>
+                  <span
+                    class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200"
+                    >Production-grade</span
+                  >
+                </figcaption>
+                <div class="overflow-x-auto">
+                  <svg
+                    viewBox="0 0 700 600"
+                    class="block h-auto w-full"
+                    role="img"
+                    aria-labelledby="topo-b-title topo-b-desc"
+                  >
+                    <title id="topo-b-title">Config B: Private + ALB トポロジ図</title>
+                    <desc id="topo-b-desc">
+                      Internet → IGW → ALB → App Private Subnet 上の EC2 (No Public IP) → RDS。Outbound は NAT GW 経由で集約される。
+                    </desc>
+                    <!-- Attacker -->
+                    <g>
+                      <rect x="15" y="270" width="100" height="60" rx="8" fill="#fee2e2" stroke="#ef4444" stroke-width="2" />
+                      <text x="65" y="295" text-anchor="middle" font-size="13" font-weight="600" fill="#991b1b" font-family="Inter, sans-serif">Attacker</text>
+                      <text x="65" y="315" text-anchor="middle" font-size="11" fill="#7f1d1d" font-family="Inter, sans-serif">Internet</text>
+                    </g>
+                    <!-- IGW -->
+                    <line x1="115" y1="300" x2="160" y2="300" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arrow-red-b)" />
+                    <text x="135" y="290" text-anchor="middle" font-size="10" fill="#991b1b" font-family="JetBrains Mono, monospace">tcp/80</text>
+                    <g>
+                      <rect x="160" y="275" width="60" height="50" rx="6" fill="#fff" stroke="#64748b" stroke-width="2" />
+                      <text x="190" y="296" text-anchor="middle" font-size="11" font-weight="600" fill="#334155" font-family="Inter, sans-serif">IGW</text>
+                    </g>
+                    <!-- VPC frame -->
+                    <rect x="240" y="30" width="450" height="540" rx="10" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4" />
+                    <text x="255" y="50" font-size="11" font-weight="600" fill="#475569" font-family="Inter, sans-serif">VPC 10.0.0.0/16  (Multi-AZ)</text>
+                    <!-- Public Subnet (ALB + NAT) -->
+                    <rect x="255" y="70" width="420" height="150" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5" />
+                    <text x="270" y="90" font-size="11" font-weight="600" fill="#166534" font-family="Inter, sans-serif">Public Subnets — 10.0.1.0/24, 10.0.3.0/24</text>
+                    <!-- ALB -->
+                    <g>
+                      <rect x="280" y="110" width="180" height="80" rx="8" fill="#fff" stroke="#10b981" stroke-width="2.5" />
+                      <text x="370" y="135" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46" font-family="Inter, sans-serif">ALB</text>
+                      <text x="370" y="153" text-anchor="middle" font-size="10" fill="#047857" font-family="JetBrains Mono, monospace">SG: 80/0.0.0.0/0</text>
+                      <text x="370" y="168" text-anchor="middle" font-size="10" fill="#047857" font-family="JetBrains Mono, monospace">→ App SG only</text>
+                      <text x="370" y="183" text-anchor="middle" font-size="9" fill="#64748b" font-family="JetBrains Mono, monospace">terraform/alb.tf:5-14</text>
+                    </g>
+                    <!-- NAT GW -->
+                    <g>
+                      <rect x="490" y="115" width="160" height="70" rx="8" fill="#fff" stroke="#0ea5e9" stroke-width="2" />
+                      <text x="570" y="138" text-anchor="middle" font-size="12" font-weight="700" fill="#0c4a6e" font-family="Inter, sans-serif">NAT Gateway</text>
+                      <text x="570" y="156" text-anchor="middle" font-size="10" fill="#075985" font-family="JetBrains Mono, monospace">EIP (egress)</text>
+                      <text x="570" y="173" text-anchor="middle" font-size="9" fill="#64748b" font-family="JetBrains Mono, monospace">terraform/nat.tf:12-20</text>
+                    </g>
+                    <!-- App Private Subnet -->
+                    <rect x="255" y="240" width="420" height="160" rx="8" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1.5" />
+                    <text x="270" y="260" font-size="11" font-weight="600" fill="#065f46" font-family="Inter, sans-serif">App Private Subnets — 10.0.10.0/24, 10.0.11.0/24</text>
+                    <g>
+                      <rect x="320" y="280" width="290" height="100" rx="8" fill="#fff" stroke="#10b981" stroke-width="2.5" />
+                      <text x="465" y="305" text-anchor="middle" font-size="13" font-weight="700" fill="#064e3b" font-family="Inter, sans-serif">EC2 App Server</text>
+                      <text x="465" y="323" text-anchor="middle" font-size="10" fill="#047857" font-family="JetBrains Mono, monospace">Public IP: NO</text>
+                      <text x="465" y="338" text-anchor="middle" font-size="10" fill="#047857" font-family="JetBrains Mono, monospace">SG: 80 from ALB SG only</text>
+                      <text x="465" y="353" text-anchor="middle" font-size="10" fill="#047857" font-family="JetBrains Mono, monospace">SSH via SSM Session Manager</text>
+                      <text x="465" y="370" text-anchor="middle" font-size="9" fill="#64748b" font-family="JetBrains Mono, monospace">terraform/ec2.tf:49-77</text>
+                    </g>
+                    <!-- DB Private Subnet -->
+                    <rect x="255" y="420" width="420" height="130" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5" />
+                    <text x="270" y="440" font-size="11" font-weight="600" fill="#475569" font-family="Inter, sans-serif">DB Private Subnets — 10.0.20.0/24, 10.0.21.0/24</text>
+                    <g>
+                      <rect x="290" y="460" width="170" height="75" rx="8" fill="#fff" stroke="#0ea5e9" stroke-width="2" />
+                      <text x="375" y="485" text-anchor="middle" font-size="12" font-weight="700" fill="#0c4a6e" font-family="Inter, sans-serif">RDS Primary</text>
+                      <text x="375" y="502" text-anchor="middle" font-size="10" fill="#075985" font-family="JetBrains Mono, monospace">5432 from App SG</text>
+                      <text x="375" y="520" text-anchor="middle" font-size="9" fill="#64748b" font-family="JetBrains Mono, monospace">terraform/rds.tf</text>
+                    </g>
+                    <g>
+                      <rect x="480" y="460" width="170" height="75" rx="8" fill="#fff" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3" />
+                      <text x="565" y="485" text-anchor="middle" font-size="12" font-weight="700" fill="#475569" font-family="Inter, sans-serif">RDS Standby</text>
+                      <text x="565" y="502" text-anchor="middle" font-size="10" fill="#64748b" font-family="JetBrains Mono, monospace">(Multi-AZ ready)</text>
+                    </g>
+                    <!-- Arrows -->
+                    <line x1="220" y1="300" x2="280" y2="150" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arrow-red-b)" />
+                    <line x1="370" y1="190" x2="465" y2="280" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrow-blue-b)" />
+                    <text x="395" y="240" font-size="10" fill="#1e3a8a" font-family="JetBrains Mono, monospace">forward 80</text>
+                    <line x1="465" y1="380" x2="375" y2="460" stroke="#10b981" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow-green-b)" />
+                    <text x="395" y="425" font-size="10" fill="#047857" font-family="JetBrains Mono, monospace">5432</text>
+                    <!-- App → NAT outbound -->
+                    <path d="M 610 280 Q 660 230 600 185" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow-green-b)" />
+                    <text x="630" y="240" font-size="10" fill="#047857" font-family="JetBrains Mono, monospace">egress</text>
+                    <!-- NAT → IGW -->
+                    <path d="M 490 150 Q 350 60 220 280" fill="none" stroke="#10b981" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow-green-b)" />
+                    <defs>
+                      <marker id="arrow-red-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444" />
+                      </marker>
+                      <marker id="arrow-blue-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" />
+                      </marker>
+                      <marker id="arrow-green-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
+                      </marker>
+                    </defs>
+                  </svg>
+                </div>
+                <ul class="mt-3 space-y-1 text-xs text-slate-600 dark:text-slate-400">
+                  <li class="flex items-start gap-2">
+                    <i data-lucide="shield-check" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" aria-hidden="true"></i>
+                    攻撃者の到達点は ALB のみ (HTTP/80)。EC2 への直接 SSH / port scan は不可
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <i data-lucide="route" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" aria-hidden="true"></i>
+                    Outbound は NAT GW EIP に集約 → 監視・絞り込みが容易
+                  </li>
+                </ul>
+              </figure>
+            </div>
+          </section>
           <section id="section-network-diff"></section>
           <section id="section-app-layer"></section>
           <section id="section-heatmap"></section>
