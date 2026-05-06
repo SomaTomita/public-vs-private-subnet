@@ -1016,12 +1016,165 @@ def fetch():
               </div>
             </div>
           </section>
-          <section id="section-conclusion"></section>
+          <!-- ===== Section 10 — Key Takeaways / Conclusion ===== -->
+          <section id="section-conclusion" class="mt-16 scroll-mt-20">
+            <header class="mb-6">
+              <p
+                class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
+              >
+                Section 10 / Conclusion
+              </p>
+              <h2
+                class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
+              >
+                Key Takeaways
+              </h2>
+              <p
+                class="mt-2 max-w-prose text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+              >
+                Private subnet は AWS ワークロードを保護する上で
+                <strong>必要だが十分ではない</strong>。
+              </p>
+            </header>
+            <div class="grid gap-4 lg:grid-cols-3">
+              <div class="rounded-xl border border-emerald-300 bg-emerald-50/60 p-5 dark:border-emerald-700/60 dark:bg-emerald-950/30">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="shield-check" class="h-5 w-5 text-emerald-600 dark:text-emerald-400" aria-hidden="true"></i>
+                  <h3 class="text-base font-bold text-emerald-900 dark:text-emerald-100">Private subnet が防げるもの</h3>
+                </div>
+                <ul class="mt-3 space-y-2 text-sm text-emerald-900 dark:text-emerald-100">
+                  <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true"></i>外部からの直接 port scan / service enumeration</li>
+                  <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true"></i>SSH brute-force from the internet</li>
+                  <li class="flex items-start gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true"></i>IP ベースの直接攻撃</li>
+                </ul>
+              </div>
+              <div class="rounded-xl border border-red-300 bg-red-50/60 p-5 dark:border-red-700/60 dark:bg-red-950/30">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="x-circle" class="h-5 w-5 text-red-600 dark:text-red-400" aria-hidden="true"></i>
+                  <h3 class="text-base font-bold text-red-900 dark:text-red-100">Private subnet が防げないもの</h3>
+                </div>
+                <ul class="mt-3 space-y-2 text-sm text-red-900 dark:text-red-100">
+                  <li class="flex items-start gap-2"><i data-lucide="x" class="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true"></i>Application 層 (SSRF → IMDS → IAM)</li>
+                  <li class="flex items-start gap-2"><i data-lucide="x" class="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true"></i>IAM credential abuse (AWS API 層)</li>
+                  <li class="flex items-start gap-2"><i data-lucide="x" class="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true"></i>Outbound exfiltration (NAT は egress を絞らない)</li>
+                  <li class="flex items-start gap-2"><i data-lucide="x" class="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true"></i>VPC 内部の lateral movement</li>
+                </ul>
+              </div>
+              <div class="rounded-xl border border-indigo-300 bg-indigo-50/60 p-5 dark:border-indigo-700/60 dark:bg-indigo-950/30">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="list-checks" class="h-5 w-5 text-indigo-600 dark:text-indigo-400" aria-hidden="true"></i>
+                  <h3 class="text-base font-bold text-indigo-900 dark:text-indigo-100">Required complementary controls</h3>
+                </div>
+                <ol class="mt-3 list-decimal space-y-1.5 pl-5 text-sm text-indigo-900 dark:text-indigo-100">
+                  <li>IMDSv2 enforcement (<code class="font-mono text-xs">http_tokens="required"</code>)</li>
+                  <li>Least-privilege IAM + SCP (<code class="font-mono text-xs">aws:SourceVpc</code>)</li>
+                  <li>AWS WAF on ALB</li>
+                  <li>Secrets Manager</li>
+                  <li>Restrictive VPC Endpoint policies</li>
+                  <li>Egress filtering (Network Firewall / DNS Firewall)</li>
+                  <li>GuardDuty + CloudTrail</li>
+                  <li>ALB access logs</li>
+                </ol>
+              </div>
+            </div>
+            <blockquote class="mt-6 rounded-xl border-l-4 border-indigo-500 bg-indigo-50/60 p-5 text-sm leading-relaxed text-indigo-900 dark:border-indigo-400 dark:bg-indigo-950/30 dark:text-indigo-100">
+              <p class="font-semibold">Network isolation is necessary but not sufficient.</p>
+              <p class="mt-1.5 text-indigo-800 dark:text-indigo-200">
+                Private subnet は最初の防御線として強力だが、application / IAM / outbound
+                の各層には別の対策が必要。 多層防御 (defense-in-depth) を前提に設計しよう。
+              </p>
+            </blockquote>
+          </section>
         </main>
       </div>
     </div>
 
-    <footer id="section-footer"></footer>
+    <footer
+      id="section-footer"
+      class="mt-20 border-t border-slate-200 bg-white py-10 dark:border-slate-800 dark:bg-slate-900"
+    >
+      <div class="mx-auto max-w-7xl px-4 md:px-6">
+        <div class="grid gap-8 md:grid-cols-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span
+                class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-indigo-500 to-purple-600 text-white"
+                aria-hidden="true"
+              >
+                <i data-lucide="shield-check" class="h-5 w-5"></i>
+              </span>
+              <span class="font-semibold text-slate-900 dark:text-white">Public vs Private Subnet</span>
+            </div>
+            <p class="mt-3 text-sm text-slate-600 dark:text-slate-400">
+              AWS Public Subnet と Private Subnet の違いをハンズオンで体験するための
+              educational lab visualization.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Repository</h3>
+            <ul class="mt-3 space-y-2 text-sm">
+              <li>
+                <a
+                  href="../../README.md"
+                  class="cursor-pointer inline-flex items-center gap-1.5 text-slate-700 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded"
+                >
+                  <i data-lucide="book-open" class="h-4 w-4" aria-hidden="true"></i>
+                  README.md
+                </a>
+              </li>
+              <li>
+                <a
+                  href="../../architecture.md"
+                  class="cursor-pointer inline-flex items-center gap-1.5 text-slate-700 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded"
+                >
+                  <i data-lucide="layout-template" class="h-4 w-4" aria-hidden="true"></i>
+                  architecture.md
+                </a>
+              </li>
+              <li>
+                <a
+                  href="../../scripts/"
+                  class="cursor-pointer inline-flex items-center gap-1.5 text-slate-700 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded"
+                >
+                  <i data-lucide="folder-code" class="h-4 w-4" aria-hidden="true"></i>
+                  scripts/
+                </a>
+              </li>
+              <li>
+                <a
+                  href="../../terraform/"
+                  class="cursor-pointer inline-flex items-center gap-1.5 text-slate-700 hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded"
+                >
+                  <i data-lucide="folder-tree" class="h-4 w-4" aria-hidden="true"></i>
+                  terraform/
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Notice</h3>
+            <p class="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+              <strong>Educational use only.</strong>
+              本ラボは意図的に脆弱な構成を含みます。production 環境では絶対に使用しないでください。
+              実行後は必ず <code class="font-mono text-xs">terraform destroy</code> でリソースを削除すること。
+            </p>
+            <p class="mt-3 font-mono text-[11px] text-slate-500 dark:text-slate-500">
+              Generated 2026-05-07
+            </p>
+          </div>
+        </div>
+        <div class="mt-8 flex flex-col items-start justify-between gap-3 border-t border-slate-200 pt-6 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400 md:flex-row md:items-center">
+          <p>© 2026 Public vs Private Subnet Lab. All visualizations derived from this repository's source.</p>
+          <a
+            href="#section-hero"
+            class="cursor-pointer inline-flex items-center gap-1.5 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+          >
+            <i data-lucide="arrow-up" class="h-3.5 w-3.5" aria-hidden="true"></i>
+            ページトップへ
+          </a>
+        </div>
+      </div>
+    </footer>
 
     <!-- Lucide icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
